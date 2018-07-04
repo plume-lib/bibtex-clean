@@ -50,9 +50,14 @@ public final class BibtexClean {
    */
   public static void main(String[] args) {
     for (String filename : args) {
-      File in = new File(filename);
-      try (PrintWriter out =
-              new PrintWriter(UtilPlume.bufferedFileWriter(in.getName())); // in current directory
+      File inFile = new File(filename);
+      File outFile = new File(inFile.getName()); // in current directory
+      // Delete the file to work around a bug.  Files.newBufferedWriter (which is called by
+      // UtilPlume.bufferedFileWriter) seems to have a bug where it does not correctly truncate the
+      // file first.  If the target file already exists, then characters beyond what is written
+      // remain in the file.
+      outFile.delete();
+      try (PrintWriter out = new PrintWriter(UtilPlume.bufferedFileWriter(outFile.toString()));
           EntryReader er = new EntryReader(filename)) {
         for (String line : er) {
           if (line.equals("") || line.startsWith("%")) {
@@ -76,7 +81,8 @@ public final class BibtexClean {
           }
         }
       } catch (IOException e) {
-        System.err.println("Problem reading or writing " + in + ": " + e.getMessage());
+        System.err.printf(
+            "Problem reading %s + or writing %s: %s", inFile, outFile, e.getMessage());
         System.exit(2);
       }
     }
