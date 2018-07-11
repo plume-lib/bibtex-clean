@@ -32,7 +32,7 @@ repositories {
 
 dependencies {
     compile 'org.plumelib:options:0.3.1'
-    compile 'org.plumelib:plume-util:0.0.1'
+    compile 'org.plumelib:plume-util:0.1.0'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
