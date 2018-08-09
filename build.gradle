@@ -28,11 +28,11 @@ repositories {
 }
 
 dependencies {
-    compile 'org.plumelib:options:1.0.0'
-    compile 'org.plumelib:plume-util:1.0.0'
+    implementation 'org.plumelib:options:1.0.0'
+    implementation 'org.plumelib:plume-util:1.0.0'
 
     // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
 
 // Define the main class for the application
