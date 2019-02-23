@@ -28,11 +28,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.plumelib:options:1.0.0'
-    implementation 'org.plumelib:plume-util:1.0.0'
+    implementation 'org.plumelib:options:1.0.1'
+    implementation 'org.plumelib:plume-util:1.0.5'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+
+    errorprone 'com.google.errorprone:error_prone_core:2.3.3'
 }
 
 // Define the main class for the application
