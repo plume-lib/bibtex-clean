@@ -32,6 +32,7 @@ checkerFramework {
     'org.checkerframework.checker.signature.SignatureChecker'
   ]
   extraJavacArgs = [
+    '-Werror',
     '-AcheckPurityAnnotations',
     '-ArequirePrefixInWarningSuppressions',
     '-AwarnUnneededSuppressions'
@@ -67,7 +68,7 @@ javadoc {
 }
 
 dependencies {
-  implementation group: 'org.plumelib', name: 'require-javadoc', version: '0.1.2'
+  compileOnly group: 'org.plumelib', name: 'require-javadoc', version: '0.1.2'
 }
 task requireJavadoc(type: Javadoc) {
   description = 'Ensures that Javadoc documentation exists.'
@@ -84,6 +85,8 @@ checkstyle {
     ignoreFailures = false
 //    configFile = file("${project.rootDir}/checkstyle.xml")
 }
+
+/// Emacs support
 
 /* Make Emacs TAGS table */
 task tags(type: Exec) {
