@@ -36,8 +36,6 @@ checkerFramework {
     '-AcheckPurityAnnotations',
     '-ArequirePrefixInWarningSuppressions',
     '-AwarnUnneededSuppressions'
-    // TEMPORARY
-    , '-AstubDebug'
   ]
 }
 
