@@ -3,6 +3,9 @@ version: 2.1
 shared: &shared
   steps:
 
+    - run: javac -version
+    - run: java -version
+
     - restore_cache:
         keys:
           - source-v1-{{ .Branch }}-{{ .Revision }}
