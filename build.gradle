@@ -22,7 +22,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.plumelib:options:1.0.2'
     implementation 'org.plumelib:plume-util:1.0.10'
 
     // Use JUnit test framework
