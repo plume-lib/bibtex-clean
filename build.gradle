@@ -10,8 +10,8 @@ plugins {
   // // Code formatting with Google Java Format; defines targets "goJF" and "verJF".
   // id 'com.github.sherter.google-java-format' version '0.7.1'
 
-  // Run the Error Prone linter.
-  id 'net.ltgt.errorprone-base' version '0.0.16'
+  // Error Prone linter
+  id("net.ltgt.errorprone") version "1.1.1"
 
   // Checker Framework pluggable type-checking
   id 'org.checkerframework' version '0.4.8' apply false
@@ -26,14 +26,26 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-
-    errorprone 'com.google.errorprone:error_prone_core:2.3.4'
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 mainClassName = 'org.plumelib.bibtex.BibtexClean'
+
+/// Error Prone linter
+
+dependencies {
+  errorprone("com.google.errorprone:error_prone_core:2.3.4")
+  // JDK 8 support for Error Prone:
+  errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
+}
+tasks.withType(JavaCompile).configureEach {
+  options.compilerArgs << "-Xlint:all" << "-Werror"
+  options.errorprone {
+    disable("ReferenceEquality") // Use Interning Checker instead.
+  }
+}
 
 /// Checker Framework pluggable type-checking
 
