@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.plumelib:plume-util:1.1.0'
+    implementation 'org.plumelib:plume-util:1.1.4'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.13'
