@@ -1,26 +1,56 @@
 plugins {
-  // To create a fat jar build/libs/bibtex-clean-all.jar, run: ./gradlew shadowJar
-  id "com.github.johnrengelman.shadow" version "5.1.0"
+  id 'java'
+  id 'application'
 
-  // Run the Error Prone linter.
-  id "net.ltgt.errorprone-base" version "0.0.16"
-  // Checker Framework pluggable type-checking
-  id 'org.checkerframework' version '0.4.8' apply false
+  // To create a fat jar build/libs/bibtex-clean-all.jar, run: ./gradlew shadowJar
+  id 'com.github.johnrengelman.shadow' version '5.2.0'
 
   // Formatting is disabled due to poor handling of type annotations; wait until
   // this issue is fixed: https://github.com/google/google-java-format/issues/5
   // // Code formatting with Google Java Format; defines targets "goJF" and "verJF".
-  // id "com.github.sherter.google-java-format" version "0.7.1"
+  // id 'com.github.sherter.google-java-format' version '0.7.1'
+
+  // Error Prone linter
+  id("net.ltgt.errorprone") version "1.1.1"
+
+  // Checker Framework pluggable type-checking
+  id 'org.checkerframework' version '0.4.14' apply false
 }
 
-// Apply the java plugin to add support for Java
-apply plugin: 'java'
+repositories {
+    mavenCentral()
+}
 
-// Apply the application plugin to add support for building an application
-apply plugin: 'application'
+dependencies {
+    implementation 'org.plumelib:plume-util:1.1.4'
 
-// Checker Framework pluggable type-checking
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.13'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'org.plumelib.bibtex.BibtexClean'
+
+/// Error Prone linter
+
+dependencies {
+  errorprone("com.google.errorprone:error_prone_core:2.3.4")
+  // JDK 8 support for Error Prone:
+  errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
+}
+tasks.withType(JavaCompile).configureEach {
+  options.compilerArgs << "-Xlint:all" << "-Werror"
+  options.errorprone {
+    disable("ReferenceEquality") // Use Interning Checker instead.
+  }
+}
+
+/// Checker Framework pluggable type-checking
+
 apply plugin: 'org.checkerframework'
+
 checkerFramework {
   checkers = [
     'org.checkerframework.checker.formatter.FormatterChecker',
@@ -39,7 +69,7 @@ checkerFramework {
   ]
 }
 
-// To use a local-built Checker Framework, run gradle with "-PcfLocal".
+// To use a locally-built Checker Framework, run gradle with "-PcfLocal".
 if (project.hasProperty("cfLocal")) {
   def cfHome = String.valueOf(System.getenv("CHECKERFRAMEWORK"))
   dependencies {
@@ -50,27 +80,7 @@ if (project.hasProperty("cfLocal")) {
   }
 }
 
-// Run: gradle check
-apply plugin: 'checkstyle'
-
-repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.plumelib:options:1.0.2'
-    implementation 'org.plumelib:plume-util:1.0.10'
-
-    // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
-
-    errorprone 'com.google.errorprone:error_prone_core:2.3.3'
-}
-
-// Define the main class for the application
-mainClassName = 'org.plumelib.bibtex.BibtexClean'
+/// Javadoc
 
 // Turn Javadoc warnings into errors.
 javadoc {
@@ -90,7 +100,10 @@ task requireJavadoc(type: Javadoc) {
   options.docletpath = project.sourceSets.main.compileClasspath as List
   options.doclet = "org.plumelib.javadoc.RequireJavadoc"
 }
+check.dependsOn requireJavadoc
 
+// Run by `gradle check`, which is run by `gradle build`
+apply plugin: 'checkstyle'
 checkstyle {
     toolVersion = "8.11"
     ignoreFailures = false
