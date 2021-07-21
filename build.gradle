@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.plumelib:plume-util:1.5.5'
+    implementation 'org.plumelib:plume-util:1.5.8'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
