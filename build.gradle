@@ -86,6 +86,7 @@ dependencies {
   checkstyleConfig("com.puppycrawl.tools:checkstyle:${checkstyleVersion}") { transitive = false }
 }
 checkstyle {
+  enabled = JavaVersion.current() == JavaVersion.VERSION_1_8
   toolVersion "${checkstyleVersion}"
   config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, 'google_checks.xml')
   ignoreFailures = false
