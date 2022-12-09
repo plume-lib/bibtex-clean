@@ -141,14 +141,6 @@ task requireJavadoc(type: JavaExec) {
 }
 check.dependsOn requireJavadoc
 
-// Run by `gradle check`, which is run by `gradle build`
-apply plugin: 'checkstyle'
-checkstyle {
-    toolVersion = "8.11"
-    ignoreFailures = false
-//    configFile = file("${project.rootDir}/checkstyle.xml")
-}
-
 /// Emacs support
 
 /* Make Emacs TAGS table */
