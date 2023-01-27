@@ -68,13 +68,6 @@ if (isJava11orHigher) {
       // endWithNewline() // Don't want to end empty files with a newline
     }
   }
-  groovyGradle {
-    target '**/*.gradle'
-    greclipse()  // which formatter Spotless should use to format .gradle files.
-    indentWithSpaces(2)
-    trimTrailingWhitespace()
-    // endWithNewline() // Don't want to end empty files with a newline
-  }
 }
 
 /// Error Prone linter
