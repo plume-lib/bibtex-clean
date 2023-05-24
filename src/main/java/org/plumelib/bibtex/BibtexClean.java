@@ -40,6 +40,7 @@ public final class BibtexClean {
   /** Regex for the end of a BibTeX entry. */
   private static Pattern entry_end =
       Pattern.compile("^[ \t]*(?i)(year[ \t]*=[ \t]*[12][0-9][0-9][0-9][ \t]*)?[)}]");
+
   /** Regex for a BibTeX string definition. */
   private static Pattern stringDef = Pattern.compile("^@(?i)string(\\{.*\\}|\\(.*\\))$");
 
