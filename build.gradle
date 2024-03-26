@@ -34,8 +34,10 @@ application {
   mainClass = 'org.plumelib.bibtex.BibtexClean'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
 
 test {
   useJUnitPlatform {
@@ -155,6 +157,7 @@ dependencies {
   requireJavadoc 'org.plumelib:require-javadoc:1.0.7'
 }
 task requireJavadoc(type: JavaExec) {
+  group = 'Documentation'
   description = 'Ensures that Javadoc documentation exists.'
   mainClass = 'org.plumelib.javadoc.RequireJavadoc'
   classpath = configurations.requireJavadoc
