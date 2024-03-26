@@ -1,2 +1,2 @@
-/** Classes for manipulating BibTex (LaTeX bibliography files). */
+/** Classes for manipulating BibTeX (LaTeX bibliography files). */
 package org.plumelib.bibtex;
