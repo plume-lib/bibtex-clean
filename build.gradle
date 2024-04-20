@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.plumelib:plume-util:1.9.2'
+  implementation 'org.plumelib:plume-util:1.9.3'
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
 
