@@ -22,9 +22,10 @@ repositories {
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
-ext.errorproneVersion = '2.32.0'
-
-ext.isJava17orHigher = JavaVersion.current() >= JavaVersion.VERSION_17
+ext {
+  errorproneVersion = '2.32.0'
+  isJava17orHigher = JavaVersion.current() >= JavaVersion.VERSION_17
+}
 
 dependencies {
   implementation 'org.plumelib:plume-util:1.9.3'
