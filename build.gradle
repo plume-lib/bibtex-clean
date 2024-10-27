@@ -29,7 +29,7 @@ ext {
 }
 
 dependencies {
-  implementation 'org.plumelib:plume-util:1.9.3'
+  implementation 'org.plumelib:plume-util:1.10.0'
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
 
