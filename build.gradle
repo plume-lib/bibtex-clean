@@ -31,9 +31,8 @@ ext {
 dependencies {
   implementation 'org.plumelib:plume-util:1.10.0'
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
-
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 application {
