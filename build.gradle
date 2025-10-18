@@ -47,14 +47,14 @@ java {
 
 test {
   useJUnitPlatform {
-    includeEngines "junit-jupiter"
-    excludeEngines "junit-vintage"
+    includeEngines("junit-jupiter")
+    excludeEngines("junit-vintage")
   }
 
   testLogging {
     outputs.upToDateWhen{false}
     showStandardStreams = true
-    events "failed"
+    events("failed")
     exceptionFormat = "full"
   }
 }
@@ -132,9 +132,9 @@ if (false) {
   // TODO: Change the above test to false when CF is released.
   ext.checkerFrameworkVersion = "3.51.1"
   dependencies {
-    compileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
-    testCompileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
-    checkerFramework "org.checkerframework:checker:${checkerFrameworkVersion}"
+    compileOnly("org.checkerframework:checker-qual:${checkerFrameworkVersion}")
+    testCompileOnly("org.checkerframework:checker-qual:${checkerFrameworkVersion}")
+    checkerFramework("org.checkerframework:checker:${checkerFrameworkVersion}")
   }
   configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, "minutes"
@@ -144,9 +144,9 @@ if (false) {
 if (project.hasProperty("cfLocal")) {
   def cfHome = String.valueOf(System.getenv("CHECKERFRAMEWORK"))
   dependencies {
-    compileOnly files(cfHome + "/checker/dist/checker-qual.jar")
-    testCompileOnly files(cfHome + "/checker/dist/checker-qual.jar")
-    checkerFramework files(cfHome + "/checker/dist/checker.jar")
+    compileOnly(files(cfHome + "/checker/dist/checker-qual.jar"))
+    testCompileOnly(files(cfHome + "/checker/dist/checker-qual.jar"))
+    checkerFramework(files(cfHome + "/checker/dist/checker.jar"))
   }
 }
 
@@ -164,20 +164,20 @@ javadoc {
     }
   }
 }
-check.dependsOn javadoc
+check.dependsOn(javadoc)
 
 configurations {
   requireJavadoc
 }
 dependencies {
-  requireJavadoc "org.plumelib:require-javadoc:2.0.0"
+  requireJavadoc("org.plumelib:require-javadoc:2.0.0")
 }
 tasks.register("requireJavadoc", JavaExec) {
   group = "Documentation"
   description = "Ensures that Javadoc documentation exists."
   mainClass = "org.plumelib.javadoc.RequireJavadoc"
   classpath = configurations.requireJavadoc
-  args "src/main/java"
+  args("src/main/java")
   jvmArgs += [
     "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
     "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
@@ -189,12 +189,12 @@ tasks.register("requireJavadoc", JavaExec) {
     "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
   ]
 }
-check.dependsOn requireJavadoc
+check.dependsOn(requireJavadoc)
 
 // Emacs support
 
 /* Make Emacs TAGS table */
 tasks.register("tags", Exec) {
   description = "Run etags to create an Emacs TAGS table"
-  commandLine "bash", "-c", "find src/ -name '*.java' | sort | xargs etags"
+  commandLine("bash", "-c", "find src/ -name '*.java' | sort | xargs etags")
 }
