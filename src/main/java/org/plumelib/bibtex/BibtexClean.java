@@ -49,6 +49,7 @@ public final class BibtexClean {
    *
    * @param args command-line arguments
    */
+  @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
   public static void main(String[] args) {
     for (String filename : args) {
       File inFile = new File(filename);
