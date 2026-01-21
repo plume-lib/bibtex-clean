@@ -36,7 +36,7 @@ ext {
 }
 
 dependencies {
-  implementation("org.plumelib:plume-util:1.12.3")
+  implementation("org.plumelib:plume-util:1.13.0")
 
   testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
