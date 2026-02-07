@@ -83,8 +83,7 @@ public final class BibtexClean {
           }
         }
       } catch (IOException e) {
-        System.err.printf(
-            "Problem reading %s + or writing %s: %s", inFile, outFile, e.getMessage());
+        System.err.printf("Problem reading %s or writing %s: %s", inFile, outFile, e.getMessage());
         System.exit(2);
       }
     }
