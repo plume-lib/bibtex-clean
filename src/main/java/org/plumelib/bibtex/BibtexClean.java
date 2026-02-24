@@ -46,14 +46,16 @@ public final class BibtexClean {
                   + "[a-zA-Z0-9_]+[ \t]*=[ \t]*"
                   + ("("
                       + "\\{[^{}]*\\}|\".*\"|"
-                      + "[12][0-9][0-9][0-9]|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov"
+                      + "[12][0-9][0-9][0-9]|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec"
                       + ")")
                   + ",?[ \t]*"
                   + ")*")
-              + "[)}]");
+              + "[)}]",
+          Pattern.CASE_INSENSITIVE);
 
   /** Regex for a BibTeX string definition. */
-  private static Pattern stringDef = Pattern.compile("^@(?i)string(\\{.*\\}|\\(.*\\))$");
+  private static Pattern stringDef =
+      Pattern.compile("^@string(\\{.*\\}|\\(.*\\))$", Pattern.CASE_INSENSITIVE);
 
   /**
    * Clean a BibTeX file by removing text outside BibTeX entries.
