@@ -11,7 +11,8 @@ import org.plumelib.util.UtilPlume;
  * Clean a BibTeX file by removing text outside BibTeX entries.
  *
  * <p>Remove each non-empty line that is not in a BibTeX entry, except retain any line that starts
- * with "%".
+ * with "%". Each BibTeX entry should not contain blank lines. {@code @string} entries should fit on
+ * one line.
  *
  * <p>Arguments are the names of the original files. Cleaned copies of those files are written in
  * the CURRENT DIRECTORY. Therefore, this should be run in a different directory from where the
@@ -39,15 +40,26 @@ public final class BibtexClean {
 
   /** Regex for the end of a BibTeX entry. */
   private static Pattern entry_end =
-      Pattern.compile("^[ \t]*(?i)(year[ \t]*=[ \t]*[12][0-9][0-9][0-9][ \t]*)?[)}]");
+      Pattern.compile(
+          "^[ \t]*"
+              + ("("
+                  + "[a-zA-Z0-9_]+[ \t]*=[ \t]*"
+                  + ("("
+                      + "\\{[^{}]*\\}|\".*\"|"
+                      + "[12][0-9][0-9][0-9]|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov"
+                      + ")")
+                  + ",?[ \t]*"
+                  + ")*")
+              + "[)}]");
 
   /** Regex for a BibTeX string definition. */
   private static Pattern stringDef = Pattern.compile("^@(?i)string(\\{.*\\}|\\(.*\\))$");
 
   /**
-   * Main method for the BibtexClean program.
+   * Clean a BibTeX file by removing text outside BibTeX entries.
    *
-   * @param args command-line arguments
+   * @param args names of the original files. The original files should be in a different directory
+   *     than the working directory.
    */
   @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
   public static void main(String[] args) {
@@ -69,13 +81,16 @@ public final class BibtexClean {
               out.println(line);
             } else {
               out.println(line);
+              String entryStartLine = line;
+              int entryStartLineNumber = er.getLineNumber();
               while (er.hasNext() && ((line = er.next()) != null)) {
                 out.println(line);
                 if (entry_end.matcher(line).lookingAt()) {
                   break;
                 } else if (line.equals("")) {
                   System.err.printf(
-                      "%s:%d: unterminated entry%n", er.getFileName(), er.getLineNumber());
+                      "%s:%d: unterminated entry: %s%n",
+                      er.getFileName(), entryStartLineNumber, entryStartLine);
                   break;
                 }
               }
