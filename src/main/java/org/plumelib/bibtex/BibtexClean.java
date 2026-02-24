@@ -43,7 +43,7 @@ public final class BibtexClean {
       Pattern.compile(
           "^[ \t]*"
               + ("("
-                  + "[a-zA-Z0-9_]+[ \t]*=[ \t]*"
+                  + "[a-z0-9_]+[ \t]*=[ \t]*"
                   + ("("
                       + "\\{[^{}]*\\}|\".*\"|"
                       + "[12][0-9][0-9][0-9]|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec"
