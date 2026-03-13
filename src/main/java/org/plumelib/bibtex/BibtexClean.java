@@ -84,11 +84,15 @@ public final class BibtexClean {
               out.println(line);
               String entryStartLine = line;
               int entryStartLineNumber = er.getLineNumber();
-              for (String innerLine : er) {
-                out.println(innerLine);
-                if (entry_end.matcher(innerLine).lookingAt()) {
+              while (er.hasNext()) {
+                line = er.next();
+                if (line == null) {
                   break;
-                } else if (innerLine.equals("")) {
+                }
+                out.println(line);
+                if (entry_end.matcher(line).lookingAt()) {
+                  break;
+                } else if (line.equals("")) {
                   System.err.printf(
                       "%s:%d: unterminated entry: %s%n",
                       er.getFileName(), entryStartLineNumber, entryStartLine);
