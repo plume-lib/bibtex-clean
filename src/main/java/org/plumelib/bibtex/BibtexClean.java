@@ -63,7 +63,6 @@ public final class BibtexClean {
    * @param args names of the original files. The original files should be in a different directory
    *     than the working directory.
    */
-  @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
   public static void main(String[] args) {
     for (String filename : args) {
       File inFile = new File(filename);
@@ -85,11 +84,11 @@ public final class BibtexClean {
               out.println(line);
               String entryStartLine = line;
               int entryStartLineNumber = er.getLineNumber();
-              while (er.hasNext() && ((line = er.next()) != null)) {
-                out.println(line);
-                if (entry_end.matcher(line).lookingAt()) {
+              for (String innerLine : er) {
+                out.println(innerLine);
+                if (entry_end.matcher(innerLine).lookingAt()) {
                   break;
-                } else if (line.equals("")) {
+                } else if (innerLine.equals("")) {
                   System.err.printf(
                       "%s:%d: unterminated entry: %s%n",
                       er.getFileName(), entryStartLineNumber, entryStartLine);
