@@ -95,7 +95,7 @@ public final class BibtexClean {
                       er.getFileName(), entryStartLineNumber, entryStartLine);
                   break;
                 }
-                if (entry_end.matcher(line).lookingAt()) {
+                if (entry_end.matcher(line2).lookingAt()) {
                   break;
                 }
               }
