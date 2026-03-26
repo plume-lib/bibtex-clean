@@ -75,7 +75,7 @@ public final class BibtexClean {
       try (PrintWriter out = new PrintWriter(UtilPlume.bufferedFileWriter(outFile.toString()));
           EntryReader er = new EntryReader(filename)) {
         for (String line : er) {
-          if (line.equals("") || line.startsWith("%")) {
+          if (line.isEmpty() || line.startsWith("%")) {
             out.println(line);
           } else if (line.startsWith("@")) {
             if (stringDef.matcher(line).matches()) {
@@ -89,7 +89,7 @@ public final class BibtexClean {
                 if (line2 != null) {
                   out.println(line2);
                 }
-                if (line2 == null || line2.equals("")) {
+                if (line2 == null || line2.isEmpty()) {
                   System.err.printf(
                       "%s:%d: unterminated entry: %s%n",
                       er.getFileName(), entryStartLineNumber, entryStartLine);
