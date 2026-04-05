@@ -83,7 +83,7 @@ public final class BibtexClean {
               String entryStartLine = line;
               int entryStartLineNumber = er.getLineNumber();
               while (er.hasNext()) {
-                String line2 = er.next(); // not null because `er.hashNext()` returned true
+                String line2 = er.next(); // not null because `er.hasNext()` returned true
                 out.println(line2);
                 if (line2.isEmpty()) {
                   System.err.printf(
