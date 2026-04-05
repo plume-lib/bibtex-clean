@@ -21,9 +21,6 @@ plugins {
   // Checker Framework pluggable type-checking
   alias(libs.plugins.org.checkerframework)
 }
-plugins {
-    id "com.dorongold.task-tree" version "4.0.1"
-}
 
 repositories {
   mavenLocal()

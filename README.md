@@ -1,4 +1,4 @@
-# bibtex-clean #
+# bibtex-clean
 
 Clean a BibTeX file by removing text outside BibTeX entries.
 
