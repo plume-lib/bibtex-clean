@@ -39,7 +39,7 @@ public final class BibtexClean {
   }
 
   /** Regex for the end of a BibTeX entry. */
-  private static Pattern entry_end =
+  private static final Pattern entry_end =
       Pattern.compile(
           "^[ \t]*"
               + ("("
@@ -54,7 +54,7 @@ public final class BibtexClean {
           Pattern.CASE_INSENSITIVE);
 
   /** Regex for a BibTeX string definition. */
-  private static Pattern stringDef =
+  private static final Pattern stringDef =
       Pattern.compile("^@string(\\{.*\\}|\\(.*\\))$", Pattern.CASE_INSENSITIVE);
 
   /**
@@ -78,18 +78,14 @@ public final class BibtexClean {
           if (line.isEmpty() || line.startsWith("%")) {
             out.println(line);
           } else if (line.startsWith("@")) {
-            if (stringDef.matcher(line).matches()) {
-              out.println(line);
-            } else {
-              out.println(line);
+            out.println(line);
+            if (!stringDef.matcher(line).matches()) {
               String entryStartLine = line;
               int entryStartLineNumber = er.getLineNumber();
               while (er.hasNext()) {
-                String line2 = er.next();
-                if (line2 != null) {
-                  out.println(line2);
-                }
-                if (line2 == null || line2.isEmpty()) {
+                String line2 = er.next(); // not null because `er.hashNext()` returned true
+                out.println(line2);
+                if (line2.isEmpty()) {
                   System.err.printf(
                       "%s:%d: unterminated entry: %s%n",
                       er.getFileName(), entryStartLineNumber, entryStartLine);
