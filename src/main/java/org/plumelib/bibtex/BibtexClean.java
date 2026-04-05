@@ -82,6 +82,7 @@ public final class BibtexClean {
             if (!stringDef.matcher(line).matches()) {
               String entryStartLine = line;
               int entryStartLineNumber = er.getLineNumber();
+              boolean entryClosed = false;
               while (er.hasNext()) {
                 String line2 = er.next(); // not null because `er.hasNext()` returned true
                 out.println(line2);
@@ -89,11 +90,18 @@ public final class BibtexClean {
                   System.err.printf(
                       "%s:%d: unterminated entry: %s%n",
                       er.getFileName(), entryStartLineNumber, entryStartLine);
+                  entryClosed = true;
                   break;
                 }
                 if (entry_end.matcher(line2).lookingAt()) {
+                  entryClosed = true;
                   break;
                 }
+              }
+              if (!entryClosed) {
+                System.err.printf(
+                    "%s:%d: unterminated entry at EOF: %s%n",
+                    er.getFileName(), entryStartLineNumber, entryStartLine);
               }
             }
           }
