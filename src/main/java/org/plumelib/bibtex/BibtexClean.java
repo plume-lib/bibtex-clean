@@ -22,7 +22,7 @@ import org.plumelib.util.UtilPlume;
 // The implementation uses regular expressions rather than a BibTeX parser,
 // because BibTeX parsers generally do not preserve formatting, such as
 // indentation, delimiter characters, and order of fields.  And, the ones I
-// looked at were not very well-documented.
+// looked at were not very well documented.
 
 // The implementation cannot use EntryReader to iterate through the file
 // because the @ line does not necessarily follow a blank line -- there
