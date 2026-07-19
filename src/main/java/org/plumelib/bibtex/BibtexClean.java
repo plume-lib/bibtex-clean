@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Pattern;
 import org.plumelib.util.EntryReader;
-import org.plumelib.util.UtilP;
+import org.plumelib.util.FilesP;
 
 /**
  * Clean a BibTeX file by removing text outside BibTeX entries.
@@ -68,11 +68,11 @@ public final class BibtexClean {
       File inFile = new File(filename);
       File outFile = new File(inFile.getName()); // in current directory
       // Delete the file to work around a bug.  Files.newBufferedWriter (which is called by
-      // UtilP.bufferedFileWriter) seems to have a bug where it does not correctly truncate the
+      // FilesP.bufferedFileWriter) seems to have a bug where it does not correctly truncate the
       // file first.  If the target file already exists, then characters beyond what is written
       // remain in the file.
       outFile.delete();
-      try (PrintWriter out = new PrintWriter(UtilP.bufferedFileWriter(outFile.toString()));
+      try (PrintWriter out = new PrintWriter(FilesP.newBufferedFileWriter(outFile.toString()));
           EntryReader er = new EntryReader(filename)) {
         for (String line : er) {
           if (line.isEmpty() || line.startsWith("%")) {
