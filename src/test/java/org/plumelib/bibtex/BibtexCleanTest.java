@@ -2,15 +2,49 @@ package org.plumelib.bibtex;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.plumelib.util.EntryReader;
 
 /** Tests for {@link BibtexClean}. */
 public final class BibtexCleanTest {
+
+  /** The file name that the tests give to the BibTeX text being cleaned. */
+  private static final String testFileName = "test.bib";
+
+  /**
+   * The result of running {@link BibtexClean#clean}.
+   *
+   * @param out the cleaned BibTeX
+   * @param err the diagnostics about unterminated entries
+   */
+  private record CleanResult(String out, String err) {}
+
+  /**
+   * Runs {@link BibtexClean#clean} on the given input.
+   *
+   * @param input the BibTeX text to clean
+   * @return the cleaned BibTeX text and the diagnostics
+   * @throws IOException if there is a problem reading the input
+   */
+  private static CleanResult clean(String input) throws IOException {
+    StringWriter sw = new StringWriter();
+    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+    try (EntryReader er =
+            new EntryReader(
+                new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)), testFileName);
+        PrintWriter pw = new PrintWriter(sw);
+        PrintStream err = new PrintStream(errBytes, true, StandardCharsets.UTF_8)) {
+      BibtexClean.clean(er, pw, err);
+    }
+    return new CleanResult(sw.toString(), errBytes.toString(StandardCharsets.UTF_8));
+  }
 
   /**
    * Runs {@link BibtexClean#clean} on the given input and returns the cleaned output.
@@ -20,12 +54,7 @@ public final class BibtexCleanTest {
    * @throws IOException if there is a problem reading the input
    */
   private static String cleaned(String input) throws IOException {
-    StringWriter sw = new StringWriter();
-    try (EntryReader er = new EntryReader(new StringReader(input));
-        PrintWriter pw = new PrintWriter(sw)) {
-      BibtexClean.clean(er, pw);
-    }
-    return sw.toString();
+    return clean(input).out();
   }
 
   /**
@@ -56,7 +85,9 @@ public final class BibtexCleanTest {
             "Junk after the entry.");
     String expected =
         lines("@article{key,", "  author = {Smith},", "  title = {A Title},", "  year = 2020", "}");
-    assertEquals(expected, cleaned(input));
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
   }
 
   @Test
@@ -93,10 +124,24 @@ public final class BibtexCleanTest {
   }
 
   @Test
+  public void unterminatedEntryAtBlankLine() throws IOException {
+    // A blank line ends an entry.  The entry is copied out verbatim, and a diagnostic that names
+    // the line on which the entry started is written to the error stream.
+    String input =
+        lines("Junk before the entry.", "@book{k,", "  title = {T}", "", "@book{k2,", "}");
+    String expected = lines("@book{k,", "  title = {T}", "", "@book{k2,", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals(lines(testFileName + ":2: unterminated entry: @book{k,"), result.err());
+  }
+
+  @Test
   public void unterminatedEntryAtEofDoesNotCrash() throws IOException {
     // An entry that is never closed before end of input should be copied out verbatim (with a
-    // diagnostic written to standard error), not throw an exception.
+    // diagnostic written to the error stream), not throw an exception.
     String input = lines("@book{k,", "  title = {T}");
-    assertEquals(input, cleaned(input));
+    CleanResult result = clean(input);
+    assertEquals(input, result.out());
+    assertEquals(lines(testFileName + ":1: unterminated entry at EOF: @book{k,"), result.err());
   }
 }
