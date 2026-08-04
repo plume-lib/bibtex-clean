@@ -1,0 +1,2 @@
+A one-line @string definition is retained, whatever its capitalization and whether it is delimited
+by braces or by parentheses.  It does not start a multi-line entry, so text after it is removed.

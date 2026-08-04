@@ -1,0 +1,3 @@
+The program treats any line that starts with "@" as the start of an entry, even when it is not.
+Such a line, and the text after it up to the first line that looks like the end of an entry, is
+retained.

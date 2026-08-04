@@ -1,0 +1,4 @@
+A nonexistent input file is reported on standard error, and the exit status is 2.  Note that the
+program creates the output file before it tries to read the input file, so it leaves behind an
+empty output file even though it produced no output; if a file of that name already existed, it has
+been destroyed.

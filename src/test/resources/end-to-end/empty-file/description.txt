@@ -1,0 +1,1 @@
+An empty input file produces an empty output file.
