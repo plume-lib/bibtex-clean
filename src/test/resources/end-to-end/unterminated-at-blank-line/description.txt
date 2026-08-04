@@ -1,0 +1,4 @@
+An empty line ends an entry, because a BibTeX entry may not contain an empty line.  The program
+writes a diagnostic to standard error.  Note that the rest of the entry -- here, the "year" field
+and the closing brace -- is silently discarded, because those lines are outside any entry, so the
+output is not valid BibTeX.

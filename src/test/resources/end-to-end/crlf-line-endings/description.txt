@@ -1,0 +1,2 @@
+Carriage returns of a CRLF-terminated input file do not appear in the output, which is terminated
+with the line separator of the platform on which the program runs.

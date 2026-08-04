@@ -1,0 +1,1 @@
+Each command-line argument is cleaned into a file of the same simple name in the current directory.

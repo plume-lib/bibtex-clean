@@ -1,0 +1,3 @@
+The end of an entry is recognized after fields that are indented with tabs, that have capitalized
+names, that have a month abbreviation or a bare year as a value, and in an entry that is delimited
+by parentheses rather than braces.

@@ -1,0 +1,1 @@
+input/unterminated.bib:2: unterminated entry: @article{k1,

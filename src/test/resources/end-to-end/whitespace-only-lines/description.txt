@@ -1,0 +1,3 @@
+A line that contains only spaces is not empty, so outside an entry it is removed, even though an
+empty line in the same position would be retained.  Within an entry, such a line is retained and
+does not end the entry.
