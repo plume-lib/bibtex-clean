@@ -18,7 +18,7 @@ junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform
 
 plume-util = "org.plumelib:plume-util:2.0.0-SNAPSHOT"
 
-require-javadoc = "org.plumelib:require-javadoc:3.0.0-SNAPSHOT"
+require-javadoc = "org.plumelib:require-javadoc:3.0.0"
 
 [plugins]
 
