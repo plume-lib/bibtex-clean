@@ -35,13 +35,8 @@ import org.plumelib.util.FilesP;
 
 public final class BibtexClean {
 
-  /** This class is a collection of methods; it does not represent anything. */
-  private BibtexClean() {
-    throw new Error("do not instantiate");
-  }
-
   /** Regex for the end of a BibTeX entry. */
-  private static final Pattern entryEnd =
+  private static final Pattern ENTRY_END =
       Pattern.compile(
           "^[ \t]*"
               + ("("
@@ -56,8 +51,13 @@ public final class BibtexClean {
           Pattern.CASE_INSENSITIVE);
 
   /** Regex for a BibTeX string definition. */
-  private static final Pattern stringDef =
+  private static final Pattern STRING_DEF =
       Pattern.compile("^@string(\\{.*\\}|\\(.*\\))$", Pattern.CASE_INSENSITIVE);
+
+  /** This class is a collection of methods; it does not represent anything. */
+  private BibtexClean() {
+    throw new UnsupportedOperationException("do not instantiate");
+  }
 
   /**
    * Clean a BibTeX file by removing text outside BibTeX entries.
@@ -65,6 +65,7 @@ public final class BibtexClean {
    * @param args names of the original files. The original files should be in a different directory
    *     than the working directory.
    */
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public static void main(String[] args) {
     for (String filename : args) {
       File inFile = new File(filename);
@@ -77,8 +78,9 @@ public final class BibtexClean {
       // `bw`, rather than the PrintWriter that wraps it, is the resource, so that an IOException
       // thrown while closing the file is propagated rather than being suppressed by PrintWriter.
       try (BufferedWriter bw = FilesP.newBufferedFileWriter(outFile.toString());
-          EntryReader er = new EntryReader(filename)) {
-        PrintWriter out = new PrintWriter(bw);
+          EntryReader er = new EntryReader(filename);
+          PrintWriter out = new PrintWriter(bw)) {
+
         clean(er, out, System.err);
         // PrintWriter suppresses IOException, so ask it whether writing succeeded.  `checkError`
         // flushes `out`, so this accounts for everything that `clean` wrote.
@@ -108,13 +110,13 @@ public final class BibtexClean {
    * @param out where to write the cleaned BibTeX
    * @param err where to write diagnostics about unterminated entries
    */
-  static void clean(EntryReader er, PrintWriter out, PrintStream err) {
+  /*package*/ static void clean(EntryReader er, PrintWriter out, PrintStream err) {
     for (String line : er) {
       if (line.isEmpty() || line.startsWith("%")) {
         out.println(line);
       } else if (line.startsWith("@")) {
         out.println(line);
-        if (!stringDef.matcher(line).matches()) {
+        if (!STRING_DEF.matcher(line).matches()) {
           String entryStartLine = line;
           // Capture the file name and line number before the loop below, because reaching
           // end of input closes the reader, after which `er.getFileName()` and
@@ -138,7 +140,7 @@ public final class BibtexClean {
                   entryStartFileName, entryStartLineNumber, entryStartLine);
               break;
             }
-            if (entryEnd.matcher(line2).lookingAt()) {
+            if (ENTRY_END.matcher(line2).lookingAt()) {
               break;
             }
           }
