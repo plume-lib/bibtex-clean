@@ -290,6 +290,27 @@ public final class BibtexCleanTest {
   }
 
   @Test
+  public void openingDelimiterOnNextLineAfterEntryTypeWithDigit() throws IOException {
+    // An entry type may contain more than letters.
+    String input = lines("@misc2", "{k,", "  year = 2020", "}", "noise");
+    String expected = lines("@misc2", "{k,", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void atLineThatIsOrdinaryTextIsAnEntryByItself() throws IOException {
+    // A line of text that starts with an email address is not an entry type followed by an entry,
+    // so it does not start a search for a delimiter on a later line.
+    String input = lines("@example.com", "noise");
+    String expected = lines("@example.com");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
   public void matchedParenInParenDelimitedEntryDoesNotEndEntry() throws IOException {
     // The ")" matches the "(" that precedes it, which is ordinary text, so it is ordinary text
     // rather than the delimiter that closes the entry.
@@ -318,6 +339,21 @@ public final class BibtexCleanTest {
     // though a backslash precedes it.
     String input = lines("@misc{k,", "  title = {A path C:\\},", "  year = 2020", "}", "noise");
     String expected = lines("@misc{k,", "  title = {A path C:\\},", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void quotationMarkWithinBracesDoesNotEndQuotedValue() throws IOException {
+    // The quotation mark of the umlaut accent is within braces, so it is ordinary text rather than
+    // the end of the quoted value.  If it ended the value, then the "}" just after it would look
+    // like the delimiter that closes the entry, and the rest of the entry would be discarded.
+    String input =
+        lines(
+            "@article{k,", "  author = \"Schl{\\\"o}mer, Thomas\",", "  year = 2020", "}", "noise");
+    String expected =
+        lines("@article{k,", "  author = \"Schl{\\\"o}mer, Thomas\",", "  year = 2020", "}");
     CleanResult result = clean(input);
     assertEquals(expected, result.out());
     assertEquals("", result.err());

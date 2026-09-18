@@ -51,8 +51,15 @@ public final class BibtexClean {
    * Regex for a line that contains only an entry type, such as "@article". BibTeX permits
    * whitespace, including a line separator, between the entry type and the entry's opening
    * delimiter.
+   *
+   * <p>BibTeX permits an entry type to contain any character other than whitespace and {@code
+   * "#%'(),={}}, but this regex permits only a letter, digit, hyphen, or underscore. A stricter
+   * regex is better here, because a line that this regex matches starts a search for a delimiter
+   * that might be far away or absent. For example, this regex does not match a line of ordinary
+   * text that starts with an email address, such as "@example.com is my address".
    */
-  private static final Pattern entryTypeOnly = Pattern.compile("^[ \t]*@[A-Za-z]+[ \t]*$");
+  private static final Pattern entryTypeOnly =
+      Pattern.compile("^[ \t]*@[A-Za-z][A-Za-z0-9_-]*[ \t]*$");
 
   /**
    * Clean a BibTeX file by removing text outside BibTeX entries.
@@ -209,6 +216,13 @@ public final class BibtexClean {
     private boolean inQuotedValue = false;
 
     /**
+     * The number of "{" characters within the current quote-delimited field value that have not yet
+     * been matched by a "}". A quotation mark ends the value only where this is zero, because a
+     * quotation mark within braces is ordinary text, as in {@code author = "Schl{\"o}mer"}.
+     */
+    private int quotedValueBraces = 0;
+
+    /**
      * The number of "(" characters that are ordinary text, appear directly within a
      * parenthesis-delimited entry, and have not yet been matched by a ")". Each such ")" is
      * ordinary text rather than the delimiter that closes the entry.
@@ -261,6 +275,9 @@ public final class BibtexClean {
      * <ul>
      *   <li>any delimiter within a quote-delimited field value, as is the "}" in {@code title = "A
      *       } brace"};
+     *   <li>a quotation mark within braces within a quote-delimited field value, as is the one in
+     *       {@code author = "Schl{\"o}mer"}; such a quotation mark does not end the value, so the
+     *       braces within a quoted value are counted even though they are not delimiters;
      *   <li>a quotation mark that does not start a field value, as is the one in {@code note = 5"
      *       floppy disk}; a field value starts only at the top level of the entry, and only just
      *       after "=", "#", or the entry's own opening delimiter;
@@ -290,7 +307,17 @@ public final class BibtexClean {
       for (int i = 0; i < line.length(); i++) {
         char c = line.charAt(i);
         if (inQuotedValue) {
-          if (c == '"') {
+          // The braces within a quoted value are not delimiters, but they are counted, because a
+          // quotation mark within them is ordinary text rather than the end of the value.  That is
+          // how BibTeX reads a value such as "Schl{\"o}mer".  A "}" that matches no "{" is ignored
+          // rather than counted, as in the value "A } brace".
+          if (c == '{') {
+            quotedValueBraces++;
+          } else if (c == '}') {
+            if (quotedValueBraces > 0) {
+              quotedValueBraces--;
+            }
+          } else if (c == '"' && quotedValueBraces == 0) {
             inQuotedValue = false;
           }
         } else if (c == '"') {
@@ -302,6 +329,7 @@ public final class BibtexClean {
                   || previousNonBlank == '{'
                   || previousNonBlank == '(')) {
             inQuotedValue = true;
+            quotedValueBraces = 0;
           }
         } else if (c == '{') {
           pendingDelimiters.push('}');
