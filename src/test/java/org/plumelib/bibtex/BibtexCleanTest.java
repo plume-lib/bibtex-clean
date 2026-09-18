@@ -159,7 +159,7 @@ public final class BibtexCleanTest {
 
   @Test
   public void singleLineEntryIsComplete() throws IOException {
-    // The entry's value contains nested braces and a backslash-escaped brace.
+    // The entry's value is quoted and contains nested braces, none of which ends the entry early.
     String input = lines("@preamble{\"\\newcommand{\\noop}[1]{}\"}", "noise");
     String expected = lines("@preamble{\"\\newcommand{\\noop}[1]{}\"}");
     assertEquals(expected, cleaned(input));
@@ -273,6 +273,62 @@ public final class BibtexCleanTest {
     String input =
         lines("@article{k,", "  abstract = {He said \"hi},", "  year = 2020", "}", "noise");
     String expected = lines("@article{k,", "  abstract = {He said \"hi},", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void openingDelimiterOnNextLine() throws IOException {
+    // BibTeX permits whitespace, including a line separator, between the entry type and the
+    // entry's opening delimiter, so the entry does not end after the "@" line.
+    String input = lines("@article", "{k,", "  year = 2020", "}", "noise");
+    String expected = lines("@article", "{k,", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void matchedParenInParenDelimitedEntryDoesNotEndEntry() throws IOException {
+    // The ")" matches the "(" that precedes it, which is ordinary text, so it is ordinary text
+    // rather than the delimiter that closes the entry.
+    String input =
+        lines("@article(k,", "  note = see (Smith 1999),", "  year = 2020", ")", "noise");
+    String expected = lines("@article(k,", "  note = see (Smith 1999),", "  year = 2020", ")");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void quotationMarkThatStartsNoValueIsOrdinaryText() throws IOException {
+    // The quotation mark does not follow "=", "#", or the entry's opening delimiter, so it does
+    // not start a quoted field value that would hide the delimiters after it.
+    String input = lines("@misc{k,", "  note = 5\" floppy disk,", "  year = 2020", "}", "noise");
+    String expected = lines("@misc{k,", "  note = 5\" floppy disk,", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void backslashDoesNotHideClosingDelimiter() throws IOException {
+    // BibTeX counts braces without regard to backslashes, so the "}" closes the value's brace even
+    // though a backslash precedes it.
+    String input = lines("@misc{k,", "  title = {A path C:\\},", "  year = 2020", "}", "noise");
+    String expected = lines("@misc{k,", "  title = {A path C:\\},", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void quotedValueStartingOnNextLine() throws IOException {
+    // The "=" that shows that a quoted field value follows is on the previous line.
+    String input =
+        lines("@misc{k,", "  title =", "    \"A } brace\",", "  year = 2020", "}", "noise");
+    String expected = lines("@misc{k,", "  title =", "    \"A } brace\",", "  year = 2020", "}");
     CleanResult result = clean(input);
     assertEquals(expected, result.out());
     assertEquals("", result.err());

@@ -48,6 +48,13 @@ public final class BibtexClean {
   private static final Pattern entryStart = Pattern.compile("^[ \t]*@");
 
   /**
+   * Regex for a line that contains only an entry type, such as "@article". BibTeX permits
+   * whitespace, including a line separator, between the entry type and the entry's opening
+   * delimiter.
+   */
+  private static final Pattern entryTypeOnly = Pattern.compile("^[ \t]*@[A-Za-z]+[ \t]*$");
+
+  /**
    * Clean a BibTeX file by removing text outside BibTeX entries.
    *
    * @param args names of the original files. The original files should be in a different directory
@@ -135,12 +142,16 @@ public final class BibtexClean {
         out.println(line);
       } else if (entryStart.matcher(line).lookingAt()) {
         out.println(line);
-        // A line that starts with "@" but opens no delimiter -- which is not a well-formed entry
-        // -- is an entry all by itself, and the text after it is treated as being outside any
-        // entry.
         EntryState state = new EntryState();
         state.update(line);
         if (state.isComplete()) {
+          continue;
+        }
+        if (!state.isStarted() && !entryTypeOnly.matcher(line).matches()) {
+          // A line that starts with "@", opens no delimiter, and has other text on it -- which is
+          // not a well-formed entry -- is an entry all by itself, and the text after it is treated
+          // as being outside any entry.  By contrast, a line that holds only the entry type may be
+          // an entry whose opening delimiter is on a later line, so scanning continues below.
           continue;
         }
         String entryStartLine = line;
@@ -176,30 +187,68 @@ public final class BibtexClean {
   }
 
   /**
-   * The state of scanning a BibTeX entry: the closing delimiters that the entry still awaits, and
-   * whether the scan is currently within a quote-delimited field value.
+   * The state of scanning a BibTeX entry: the closing delimiters that the entry still awaits,
+   * whether the scan is currently within a quote-delimited field value, and the parentheses that
+   * are ordinary text within a parenthesis-delimited entry.
    *
-   * <p>A new {@code EntryState} is complete, because it awaits nothing. Scanning the entry's first
-   * line makes it incomplete; the entry ends when it becomes complete again.
+   * <p>A new {@code EntryState} has not started, because the entry's opening delimiter has not been
+   * seen. The entry ends when, having started, it awaits no closing delimiter.
    */
   private static final class EntryState {
 
-    /** Creates a new {@code EntryState} that awaits no closing delimiter. */
+    /** Creates a new {@code EntryState} that has not yet seen an opening delimiter. */
     public EntryState() {}
 
     /** The closing delimiters that the entry still awaits, innermost first. */
     private final Deque<Character> pendingDelimiters = new ArrayDeque<>();
 
+    /** True if the entry's own opening delimiter has been seen. */
+    private boolean started = false;
+
     /** True if the scan is within a quote-delimited field value, such as {@code "A Title"}. */
     private boolean inQuotedValue = false;
 
     /**
-     * Returns true if the entry awaits no closing delimiter; that is, if the entry has ended.
+     * The number of "(" characters that are ordinary text, appear directly within a
+     * parenthesis-delimited entry, and have not yet been matched by a ")". Each such ")" is
+     * ordinary text rather than the delimiter that closes the entry.
+     */
+    private int ordinaryParens = 0;
+
+    /**
+     * The most recent non-blank character that has been scanned, or {@code '\0'} if there is none.
+     * A line separator is a blank, so this can be a character from a previous line.
+     */
+    private char previousNonBlank = '\0';
+
+    /**
+     * Returns true if the entry's own opening delimiter has been seen.
+     *
+     * @return true if the entry has started
+     */
+    public boolean isStarted() {
+      return started;
+    }
+
+    /**
+     * Returns true if the entry has started and awaits no closing delimiter; that is, if the entry
+     * has ended.
      *
      * @return true if the entry has ended
      */
     public boolean isComplete() {
-      return pendingDelimiters.isEmpty();
+      return started && pendingDelimiters.isEmpty();
+    }
+
+    /**
+     * Returns true if the scan is directly within a parenthesis-delimited entry; that is, if the
+     * only pending delimiter is the entry's own ")".
+     *
+     * @return true if the only pending delimiter is the entry's own ")"
+     */
+    private boolean inParenEntryTopLevel() {
+      Character innermost = pendingDelimiters.peek();
+      return pendingDelimiters.size() == 1 && innermost != null && innermost == ')';
     }
 
     /**
@@ -210,54 +259,79 @@ public final class BibtexClean {
      * <p>A character that cannot be a delimiter where it appears is ordinary text, and is ignored:
      *
      * <ul>
-     *   <li>a character preceded by a backslash, which is an escape, as in a literal brace;
      *   <li>any delimiter within a quote-delimited field value, as is the "}" in {@code title = "A
      *       } brace"};
+     *   <li>a quotation mark that does not start a field value, as is the one in {@code note = 5"
+     *       floppy disk}; a field value starts only at the top level of the entry, and only just
+     *       after "=", "#", or the entry's own opening delimiter;
      *   <li>a "(", except as the entry's own opening delimiter as in {@code @article(key, ...)};
      *       BibTeX gives parentheses no meaning within an entry, as in a value that ends with a
      *       frown;
+     *   <li>a ")" that matches such an ordinary "(", as in {@code @article(key, note = see (Smith
+     *       1999), ...)};
      *   <li>a closing delimiter that does not match the innermost pending one, as is the ")" in a
      *       braced value that ends with a smiley.
      * </ul>
+     *
+     * <p>An unmatched ordinary "(" directly within a parenthesis-delimited entry makes the entry's
+     * own ")" look like ordinary text, so the entry is not recognized as ending. That is the safe
+     * direction of error: the program retains the text and writes a diagnostic, rather than
+     * silently discarding text.
+     *
+     * <p>A backslash does not protect the character after it. BibTeX counts braces without regard
+     * to backslashes, so doing the same here makes this agree with BibTeX about where an entry
+     * ends, even for an entry whose braces BibTeX would consider unbalanced.
      *
      * <p>Once the entry has ended, the rest of the line is not examined.
      *
      * @param line the line to scan
      */
     public void update(String line) {
-      int i = 0;
-      while (i < line.length()) {
+      for (int i = 0; i < line.length(); i++) {
         char c = line.charAt(i);
-        i++;
-        if (c == '\\') {
-          // Skip the escaped character, which is not a delimiter.
-          i++;
-        } else if (inQuotedValue) {
+        if (inQuotedValue) {
           if (c == '"') {
             inQuotedValue = false;
           }
         } else if (c == '"') {
-          // A quotation mark delimits a field value only at the top level of the entry.  Within
-          // braces it is ordinary text, as in an abstract that quotes someone.
-          if (pendingDelimiters.size() == 1) {
+          // A quotation mark delimits a field value only where a value can start.  Elsewhere it is
+          // ordinary text, as in an abstract that quotes someone or a length in inches.
+          if (pendingDelimiters.size() == 1
+              && (previousNonBlank == '='
+                  || previousNonBlank == '#'
+                  || previousNonBlank == '{'
+                  || previousNonBlank == '(')) {
             inQuotedValue = true;
           }
         } else if (c == '{') {
           pendingDelimiters.push('}');
+          started = true;
         } else if (c == '(') {
           // A parenthesis delimits only the entry itself, so it opens a delimiter only before the
           // entry's own delimiter has been seen.
           if (pendingDelimiters.isEmpty()) {
             pendingDelimiters.push(')');
+            started = true;
+          } else if (inParenEntryTopLevel()) {
+            // Remember the parenthesis, so that the ")" that matches it is not mistaken for the
+            // delimiter that closes the entry.
+            ordinaryParens++;
           }
         } else if (c == '}' || c == ')') {
-          Character innermost = pendingDelimiters.peek();
-          if (innermost != null && innermost == c) {
-            pendingDelimiters.pop();
-            if (pendingDelimiters.isEmpty()) {
-              return;
+          if (c == ')' && ordinaryParens > 0 && inParenEntryTopLevel()) {
+            ordinaryParens--;
+          } else {
+            Character innermost = pendingDelimiters.peek();
+            if (innermost != null && innermost == c) {
+              pendingDelimiters.pop();
+              if (pendingDelimiters.isEmpty()) {
+                return;
+              }
             }
           }
+        }
+        if (c != ' ' && c != '\t') {
+          previousNonBlank = c;
         }
       }
     }

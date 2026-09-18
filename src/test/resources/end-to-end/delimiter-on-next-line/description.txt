@@ -1,0 +1,2 @@
+BibTeX permits whitespace, including a line separator, between the entry type and the entry's
+opening delimiter.  Such an entry is copied out in full, and the text after it is removed.

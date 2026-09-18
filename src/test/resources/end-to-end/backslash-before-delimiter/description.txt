@@ -1,0 +1,2 @@
+BibTeX counts braces without regard to backslashes, and so does this program.  A backslash just
+before a closing brace does not prevent the brace from closing a field value.
