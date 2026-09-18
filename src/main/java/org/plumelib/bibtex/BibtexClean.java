@@ -58,14 +58,17 @@ public final class BibtexClean {
       File inFile = new File(filename);
       File outFile = new File(inFile.getName()); // in current directory
       // The input file is opened before the output file is created (and before the output file is
-      // deleted), so that a run that cannot read its input leaves the current directory unchanged.
-      // In particular, it does not destroy the output of a previous, successful run.
+      // deleted), so that a run whose input cannot be opened -- because the input does not exist,
+      // or is the output file -- leaves the current directory unchanged.  In particular, such a
+      // run does not destroy the output of a previous, successful run.  (A failure that occurs
+      // later, while reading or writing, does replace the previous output.)
       try (EntryReader er = openInput(inFile, outFile)) {
         // Delete the file to work around a bug.  Files.newBufferedWriter (which is called by
         // FilesP.newBufferedFileWriter) seems to have a bug where it does not correctly truncate
         // the file first.  If the target file already exists, then characters beyond what is
         // written remain in the file.
         outFile.delete();
+        boolean writeFailed;
         // `bw`, rather than the PrintWriter that wraps it, is the resource, so that an IOException
         // thrown while closing the file is propagated rather than being suppressed by PrintWriter.
         try (BufferedWriter bw = FilesP.newBufferedFileWriter(outFile.toString())) {
@@ -73,10 +76,14 @@ public final class BibtexClean {
           clean(er, out, System.err);
           // PrintWriter suppresses IOException, so ask it whether writing succeeded.  `checkError`
           // flushes `out`, so this accounts for everything that `clean` wrote.
-          if (out.checkError()) {
-            System.err.printf("Problem writing %s%n", outFile);
-            System.exit(2);
-          }
+          writeFailed = out.checkError();
+        }
+        // Exit after the try-with-resources statement rather than within it, so that the file is
+        // closed.  Closing matters even on failure: for a compressed output file, closing writes
+        // the trailer, without which the file cannot be read at all.
+        if (writeFailed) {
+          System.err.printf("Problem writing %s%n", outFile);
+          System.exit(2);
         }
         // EntryReader's iterator wraps an IOException that occurs while reading a line in an
         // UncheckedIOException, so catching only IOException would let such a failure escape as a
@@ -128,13 +135,12 @@ public final class BibtexClean {
         out.println(line);
       } else if (entryStart.matcher(line).lookingAt()) {
         out.println(line);
-        // The closing delimiters that the entry still awaits, innermost first.  The entry ends
-        // when this is empty.  A line that starts with "@" but opens no delimiter -- which is not
-        // a well-formed entry -- is therefore an entry all by itself, and the text after it is
-        // treated as being outside any entry.
-        Deque<Character> pendingDelimiters = new ArrayDeque<>();
-        updateDelimiters(line, pendingDelimiters);
-        if (pendingDelimiters.isEmpty()) {
+        // A line that starts with "@" but opens no delimiter -- which is not a well-formed entry
+        // -- is an entry all by itself, and the text after it is treated as being outside any
+        // entry.
+        EntryState state = new EntryState();
+        state.update(line);
+        if (state.isComplete()) {
           continue;
         }
         String entryStartLine = line;
@@ -160,8 +166,8 @@ public final class BibtexClean {
                 entryStartFileName, entryStartLineNumber, entryStartLine);
             break;
           }
-          updateDelimiters(line2, pendingDelimiters);
-          if (pendingDelimiters.isEmpty()) {
+          state.update(line2);
+          if (state.isComplete()) {
             break;
           }
         }
@@ -170,37 +176,87 @@ public final class BibtexClean {
   }
 
   /**
-   * Updates {@code pendingDelimiters} for the delimiters that appear in {@code line}: pushes the
-   * matching closing delimiter for each "{" or "(", and pops for each "}" or ")" that matches the
-   * innermost pending delimiter. A closing delimiter that does not match the innermost pending one
-   * is ordinary text rather than a delimiter, as the ")" is in a braced value that ends with a
-   * smiley, so it is ignored. A backslash escapes the character after it, as in a literal brace.
+   * The state of scanning a BibTeX entry: the closing delimiters that the entry still awaits, and
+   * whether the scan is currently within a quote-delimited field value.
    *
-   * <p>Once {@code pendingDelimiters} becomes empty, the entry has ended, so the rest of the line
-   * is not examined.
-   *
-   * @param line the line to scan
-   * @param pendingDelimiters the closing delimiters that the entry awaits, innermost first; this
-   *     method modifies it
+   * <p>A new {@code EntryState} is complete, because it awaits nothing. Scanning the entry's first
+   * line makes it incomplete; the entry ends when it becomes complete again.
    */
-  private static void updateDelimiters(String line, Deque<Character> pendingDelimiters) {
-    int i = 0;
-    while (i < line.length()) {
-      char c = line.charAt(i);
-      i++;
-      if (c == '\\') {
-        // Skip the escaped character, which is not a delimiter.
+  private static final class EntryState {
+
+    /** Creates a new {@code EntryState} that awaits no closing delimiter. */
+    public EntryState() {}
+
+    /** The closing delimiters that the entry still awaits, innermost first. */
+    private final Deque<Character> pendingDelimiters = new ArrayDeque<>();
+
+    /** True if the scan is within a quote-delimited field value, such as {@code "A Title"}. */
+    private boolean inQuotedValue = false;
+
+    /**
+     * Returns true if the entry awaits no closing delimiter; that is, if the entry has ended.
+     *
+     * @return true if the entry has ended
+     */
+    public boolean isComplete() {
+      return pendingDelimiters.isEmpty();
+    }
+
+    /**
+     * Updates this for the delimiters that appear in {@code line}: pushes the matching closing
+     * delimiter for each "{" or "(" that opens one, and pops for each "}" or ")" that matches the
+     * innermost pending delimiter.
+     *
+     * <p>A character that cannot be a delimiter where it appears is ordinary text, and is ignored:
+     *
+     * <ul>
+     *   <li>a character preceded by a backslash, which is an escape, as in a literal brace;
+     *   <li>any delimiter within a quote-delimited field value, as is the "}" in {@code title = "A
+     *       } brace"};
+     *   <li>a "(", except as the entry's own opening delimiter as in {@code @article(key, ...)};
+     *       BibTeX gives parentheses no meaning within an entry, as in a value that ends with a
+     *       frown;
+     *   <li>a closing delimiter that does not match the innermost pending one, as is the ")" in a
+     *       braced value that ends with a smiley.
+     * </ul>
+     *
+     * <p>Once the entry has ended, the rest of the line is not examined.
+     *
+     * @param line the line to scan
+     */
+    public void update(String line) {
+      int i = 0;
+      while (i < line.length()) {
+        char c = line.charAt(i);
         i++;
-      } else if (c == '{') {
-        pendingDelimiters.push('}');
-      } else if (c == '(') {
-        pendingDelimiters.push(')');
-      } else if (c == '}' || c == ')') {
-        Character innermost = pendingDelimiters.peek();
-        if (innermost != null && innermost == c) {
-          pendingDelimiters.pop();
+        if (c == '\\') {
+          // Skip the escaped character, which is not a delimiter.
+          i++;
+        } else if (inQuotedValue) {
+          if (c == '"') {
+            inQuotedValue = false;
+          }
+        } else if (c == '"') {
+          // A quotation mark delimits a field value only at the top level of the entry.  Within
+          // braces it is ordinary text, as in an abstract that quotes someone.
+          if (pendingDelimiters.size() == 1) {
+            inQuotedValue = true;
+          }
+        } else if (c == '{') {
+          pendingDelimiters.push('}');
+        } else if (c == '(') {
+          // A parenthesis delimits only the entry itself, so it opens a delimiter only before the
+          // entry's own delimiter has been seen.
           if (pendingDelimiters.isEmpty()) {
-            return;
+            pendingDelimiters.push(')');
+          }
+        } else if (c == '}' || c == ')') {
+          Character innermost = pendingDelimiters.peek();
+          if (innermost != null && innermost == c) {
+            pendingDelimiters.pop();
+            if (pendingDelimiters.isEmpty()) {
+              return;
+            }
           }
         }
       }

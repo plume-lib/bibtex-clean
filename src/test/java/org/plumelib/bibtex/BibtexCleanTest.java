@@ -216,4 +216,65 @@ public final class BibtexCleanTest {
     assertEquals(input, result.out());
     assertEquals(lines(testFileName + ":1: unterminated entry at EOF: @book{k,"), result.err());
   }
+
+  @Test
+  public void unmatchedOpenParenInBracedValueDoesNotEndEntry() throws IOException {
+    // BibTeX gives parentheses no meaning within an entry, so the "(" does not open a delimiter
+    // that the entry would then await forever.
+    String input = lines("@article{k,", "  note = {A frown :-(},", "  year = 2020", "}", "noise");
+    String expected = lines("@article{k,", "  note = {A frown :-(},", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void unmatchedOpenParenInQuotedValueDoesNotEndEntry() throws IOException {
+    String input =
+        lines(
+            "@article{k,",
+            "  title = \"Proceedings of Foo (1999\",",
+            "  year = 2020",
+            "}",
+            "noise");
+    String expected =
+        lines("@article{k,", "  title = \"Proceedings of Foo (1999\",", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void closingBraceInQuotedValueDoesNotEndEntry() throws IOException {
+    // The "}" is within a quoted field value, so it is ordinary text rather than the delimiter
+    // that closes the entry.
+    String input =
+        lines(
+            "@article{k,",
+            "  title = \"A closing } brace in a quoted value\",",
+            "  year = 2020",
+            "}",
+            "noise");
+    String expected =
+        lines(
+            "@article{k,",
+            "  title = \"A closing } brace in a quoted value\",",
+            "  year = 2020",
+            "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
+
+  @Test
+  public void quotationMarkInBracedValueIsOrdinaryText() throws IOException {
+    // The quotation mark is within braces, so it does not start a quoted field value that would
+    // hide the delimiters after it.
+    String input =
+        lines("@article{k,", "  abstract = {He said \"hi},", "  year = 2020", "}", "noise");
+    String expected = lines("@article{k,", "  abstract = {He said \"hi},", "  year = 2020", "}");
+    CleanResult result = clean(input);
+    assertEquals(expected, result.out());
+    assertEquals("", result.err());
+  }
 }
