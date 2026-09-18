@@ -1,3 +1,2 @@
-BUG: BibTeX permits whitespace before the "@" that starts an entry, but the program requires the
-"@" to be the first character of the line.  An indented entry is therefore silently deleted in its
-entirety, with no diagnostic.  Here the output is empty.
+BibTeX permits whitespace before the "@" that starts an entry, and so does the program.  An
+indented entry is retained, with its indentation unchanged, and the text after it is removed.

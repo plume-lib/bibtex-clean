@@ -1,5 +1,0 @@
-BUG: an entry that fits on one line, such as a @preamble, is not recognized as complete, because
-the program tests only the lines after the first one for the end of the entry.  Therefore, the text
-after the entry is retained, up to the first line that looks like the end of an entry.  Here, the
-junk line and the following entry are treated as the body of the @preamble entry.  Only @string
-gets an exception to this rule.

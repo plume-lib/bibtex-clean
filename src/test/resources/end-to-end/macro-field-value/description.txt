@@ -1,4 +1,3 @@
-BUG: the pattern for the end of an entry recognizes a field value only if it is braced, quoted, a
-year, or a month abbreviation.  It does not recognize a @string abbreviation, so an entry whose
-last line is such a field is not recognized as ending.  The text after the entry is retained, and
-the program reports the entry as unterminated.
+An entry whose last field's value is a @string abbreviation, rather than a braced value, a quoted
+value, or a year, ends where its closing brace does.  The entry is retained, the text after it is
+removed, and the entry is not reported as unterminated.

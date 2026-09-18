@@ -1,5 +1,3 @@
-BUG: running the program on a file in the current directory destroys that file.  The program
-deletes the output file before it reads the input file, and here they are the same file, so the
-input is lost; the program then reads the now-empty file and exits successfully, without any
-diagnostic.  The program should instead recognize that the input and output are the same file, and
-refuse to process it.
+Running the program on a file in the current directory would destroy that file, because the output
+file is the input file.  The program recognizes that the input and the output are the same file,
+writes a diagnostic, and exits with status 2 without touching the file.

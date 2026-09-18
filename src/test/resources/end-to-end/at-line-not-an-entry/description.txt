@@ -1,3 +1,4 @@
-The program treats any line that starts with "@" as the start of an entry, even when it is not.
-Such a line, and the text after it up to the first line that looks like the end of an entry, is
-retained.
+The program treats any line that starts with "@" as an entry, even when it is not.  Such a line
+opens no delimiter and has other text on it, so it is an entry all by itself: the line is retained,
+but the text after it is not.  (A line that holds only an entry type is different: the entry's
+opening delimiter may be on a later line.)

@@ -1,5 +1,5 @@
-BUG: when the input file is a directory, the program terminates with an uncaught
-UncheckedIOException and a stack trace, and the exit status is 1.  The read failure happens while
-iterating over lines, and the iterator wraps it in an unchecked exception, which the program's
-"catch (IOException)" does not catch.  The program should instead print the same kind of message
-that it prints for an unreadable file, and exit with status 2.
+When the input file is a directory, reading fails while the program is iterating over lines, and
+the iterator wraps the failure in an UncheckedIOException.  The program catches that as well as
+IOException, so it reports the problem the same way that it reports an unreadable file and exits
+with status 2, rather than printing a stack trace.  The output file has already been created by the
+time the read fails, so an empty one is left behind.

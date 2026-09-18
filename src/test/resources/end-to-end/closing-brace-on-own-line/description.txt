@@ -1,5 +1,4 @@
-BUG: a line that consists of only whitespace and a closing brace -- such as the last line of a
-multi-line field value, which is very common formatting -- is treated as the end of the entry.  The
-rest of the entry is then outside any entry, so it is silently deleted.  The output is not even
-valid BibTeX: the entry that it contains is not closed.  There is no diagnostic, and the exit
-status is 0.
+A line that consists of only whitespace and a closing brace -- such as the last line of a
+multi-line field value, which is very common formatting -- does not end the entry, because it
+closes a brace that the field value opened rather than the brace that the entry opened.  The whole
+entry is retained, and the text after it is removed.

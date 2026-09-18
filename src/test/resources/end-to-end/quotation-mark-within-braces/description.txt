@@ -1,0 +1,4 @@
+A quotation mark within braces within a quoted field value -- as in the umlaut accent of
+"Schl{\"o}mer" -- is ordinary text rather than the end of the value.  If it ended the value, the
+"}" just after it would look like the delimiter that closes the entry, and the rest of the entry
+would be silently discarded.

@@ -1,3 +1,3 @@
-BUG: the pattern for a one-line @string definition is anchored at the end of the line, so a
-@string line with trailing whitespace is treated as the first line of a multi-line entry, and the
-text after it is retained.  Trailing whitespace should be permitted.
+A one-line @string definition with trailing whitespace after its closing brace is recognized as
+complete, so it does not start a multi-line entry, and the text after it is removed.  The trailing
+whitespace itself is retained, because the program copies lines verbatim.

@@ -21,7 +21,9 @@ exclude = { glob = [
   "**/*expected*",
   "**/COPYING",
   "src/main/resources/specifications/jdk/*",
-  "src/test/resources/end-to-end/**/*",
+  # End-to-end test data, whose exact bytes matter: some files intentionally have trailing
+  # whitespace, lack a final line separator, or use CRLF line separators.
+  "src/test/resources/end-to-end/**",
   "tests/kvasir-tests/povray/*",
 ] }
 

@@ -7,5 +7,8 @@ that starts with "%".
 
 Arguments are the names of the original files. Cleaned copies of those files are
 written in the **current directory**. Therefore, this should be run in a
-different directory from where the argument files are, to avoid overwriting
-them.
+different directory from where the argument files are. If an argument file is in
+the current directory, the program writes a diagnostic and exits rather than
+overwriting the file.
+
+A file whose name ends with `.gz` is read and written compressed.
