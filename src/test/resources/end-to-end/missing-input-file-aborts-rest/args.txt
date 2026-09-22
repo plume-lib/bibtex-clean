@@ -1,0 +1,2 @@
+input/no-such-file.bib
+input/refs.bib

@@ -1,0 +1,3 @@
+A realistic bibliography file, of the kind the program exists to clean: BibTeX entries interspersed
+with search-engine boilerplate, HTML fragments, and editor's notes.  It exercises several entry
+types and both kinds of delimiter at once.

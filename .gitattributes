@@ -1,0 +1,3 @@
+# The end-to-end test data must be checked out byte for byte: some of its files intentionally use
+# CRLF line separators, some intentionally lack a final line separator, and some are compressed.
+src/test/resources/end-to-end/** -text

@@ -1,0 +1,1 @@
+Text before and after an entry is removed; the entry and the blank lines around it are retained.

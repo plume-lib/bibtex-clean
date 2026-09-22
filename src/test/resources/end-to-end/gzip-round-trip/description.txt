@@ -1,0 +1,3 @@
+An input file whose name ends with ".gz" is uncompressed when it is read, and the output file, whose
+name also ends with ".gz", is compressed.  (This behavior comes from the plume-util library and is
+not documented in the program's own documentation.)  The test compares the uncompressed contents.

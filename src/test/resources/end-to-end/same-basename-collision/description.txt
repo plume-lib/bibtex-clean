@@ -1,0 +1,3 @@
+The output file name is the simple name of the input file, so cleaning two files that have the same
+simple name writes only one output file: the second file's output silently replaces the first
+file's.

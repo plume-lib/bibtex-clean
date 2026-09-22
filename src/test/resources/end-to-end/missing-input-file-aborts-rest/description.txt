@@ -1,0 +1,2 @@
+The program exits as soon as one file cannot be read, so the files named after it on the command
+line are not cleaned.

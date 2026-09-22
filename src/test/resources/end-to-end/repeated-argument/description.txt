@@ -1,0 +1,1 @@
+Naming the same file twice is harmless: the second run rewrites the same output file.

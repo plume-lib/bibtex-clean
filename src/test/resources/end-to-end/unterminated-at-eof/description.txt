@@ -1,0 +1,2 @@
+An entry that is not closed before the end of the input is copied to the output, and the program
+writes a diagnostic to standard error.

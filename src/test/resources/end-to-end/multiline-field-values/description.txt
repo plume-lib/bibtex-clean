@@ -1,0 +1,2 @@
+Field values that span several lines, delimited either by braces or by quotation marks, are
+retained, and do not end the entry.

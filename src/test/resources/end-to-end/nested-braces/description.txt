@@ -1,0 +1,2 @@
+Braces within a field value do not end the entry.  The entry ends on the line that holds both the
+final field and the closing brace.

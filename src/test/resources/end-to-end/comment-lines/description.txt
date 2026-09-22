@@ -1,0 +1,2 @@
+A line that starts with "%" is retained, both outside and inside an entry.  Other non-entry text is
+removed.
