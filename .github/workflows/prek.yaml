@@ -1,4 +1,4 @@
-name: Prek checks
+name: Prek style checks
 "on": [push, pull_request]
 jobs:
   prek:
@@ -9,7 +9,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
-          java-version: '25.0.4+101.0.LTS'
+          java-version: '25'
           cache: 'gradle'
       - run: curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/main/install.sh | sudo bash
       - uses: j178/prek-action@v3.0.0
