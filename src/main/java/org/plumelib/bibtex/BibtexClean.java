@@ -65,7 +65,7 @@ public final class BibtexClean {
    * @param args names of the original files. The original files should be in a different directory
    *     than the working directory.
    */
-  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+  // @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public static void main(String[] args) {
     for (String filename : args) {
       File inFile = new File(filename);
