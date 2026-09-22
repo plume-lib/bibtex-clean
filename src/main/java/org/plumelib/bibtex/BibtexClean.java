@@ -78,9 +78,8 @@ public final class BibtexClean {
       // `bw`, rather than the PrintWriter that wraps it, is the resource, so that an IOException
       // thrown while closing the file is propagated rather than being suppressed by PrintWriter.
       try (BufferedWriter bw = FilesP.newBufferedFileWriter(outFile.toString());
-          EntryReader er = new EntryReader(filename);
-          PrintWriter out = new PrintWriter(bw)) {
-
+          EntryReader er = new EntryReader(filename)) {
+        PrintWriter out = new PrintWriter(bw);
         clean(er, out, System.err);
         // PrintWriter suppresses IOException, so ask it whether writing succeeded.  `checkError`
         // flushes `out`, so this accounts for everything that `clean` wrote.
