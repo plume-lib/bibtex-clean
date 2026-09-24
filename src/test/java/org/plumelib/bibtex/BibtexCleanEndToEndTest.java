@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
+import org.checkerframework.checker.modifiability.qual.Modifiable;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -356,7 +357,7 @@ public final class BibtexCleanEndToEndTest {
    * @return the files under the given directory
    * @throws IOException if the directory cannot be read
    */
-  private static Map<String, Path> relativeFileNames(Path dir) throws IOException {
+  private static @Modifiable Map<String, Path> relativeFileNames(Path dir) throws IOException {
     Map<String, Path> result = new TreeMap<>();
     try (Stream<Path> paths = Files.walk(dir)) {
       for (Path path : paths.toList()) {
