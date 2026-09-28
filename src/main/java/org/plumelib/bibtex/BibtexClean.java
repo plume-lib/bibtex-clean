@@ -39,13 +39,8 @@ import org.plumelib.util.FilesP;
 
 public final class BibtexClean {
 
-  /** This class is a collection of methods; it does not represent anything. */
-  private BibtexClean() {
-    throw new Error("do not instantiate");
-  }
-
   /** Regex for the start of a BibTeX entry. BibTeX permits whitespace before the "@". */
-  private static final Pattern entryStart = Pattern.compile("^[ \t]*@");
+  private static final Pattern ENTRY_START = Pattern.compile("^[ \t]*@");
 
   /**
    * Regex for a line that contains only an entry type, such as "@article". BibTeX permits
@@ -58,8 +53,13 @@ public final class BibtexClean {
    * that might be far away or absent. For example, this regex does not match a line of ordinary
    * text that starts with an email address, such as "@example.com is my address".
    */
-  private static final Pattern entryTypeOnly =
+  private static final Pattern ENTRY_TYPE_ONLY =
       Pattern.compile("^[ \t]*@[A-Za-z][A-Za-z0-9_-]*[ \t]*$");
+
+  /** This class is a collection of methods; it does not represent anything. */
+  private BibtexClean() {
+    throw new UnsupportedOperationException("do not instantiate");
+  }
 
   /**
    * Clean a BibTeX file by removing text outside BibTeX entries.
@@ -67,6 +67,7 @@ public final class BibtexClean {
    * @param args names of the original files. The original files should be in a different directory
    *     than the working directory.
    */
+  // @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public static void main(String[] args) {
     for (String filename : args) {
       File inFile = new File(filename);
@@ -143,18 +144,18 @@ public final class BibtexClean {
    * @param out where to write the cleaned BibTeX
    * @param err where to write diagnostics about unterminated entries
    */
-  static void clean(EntryReader er, PrintWriter out, PrintStream err) {
+  /*package*/ static void clean(EntryReader er, PrintWriter out, PrintStream err) {
     for (String line : er) {
       if (line.isEmpty() || line.startsWith("%")) {
         out.println(line);
-      } else if (entryStart.matcher(line).lookingAt()) {
+      } else if (ENTRY_START.matcher(line).lookingAt()) {
         out.println(line);
         EntryState state = new EntryState();
         state.update(line);
         if (state.isComplete()) {
           continue;
         }
-        if (!state.isStarted() && !entryTypeOnly.matcher(line).matches()) {
+        if (!state.isStarted() && !ENTRY_TYPE_ONLY.matcher(line).matches()) {
           // A line that starts with "@", opens no delimiter, and has other text on it -- which is
           // not a well-formed entry -- is an entry all by itself, and the text after it is treated
           // as being outside any entry.  By contrast, a line that holds only the entry type may be
