@@ -1,0 +1,2 @@
+A ")" that matches a "(" that is ordinary text does not end a parenthesis-delimited entry; only the
+")" that matches the entry's own "(" does.

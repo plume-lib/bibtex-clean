@@ -1,0 +1,3 @@
+An entry type may contain a digit, hyphen, or underscore as well as letters, so such an entry is
+recognized even when its opening delimiter is on a later line.  A line that merely starts with an
+email address is not an entry type, so it remains an entry all by itself.

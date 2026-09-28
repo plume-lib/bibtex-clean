@@ -34,6 +34,8 @@ exclude = { glob = [
   "gradlew",
   "gradlew.bat",
   "src/main/resources/specifications/jdk/**/*",
+  # End-to-end test data, whose exact bytes matter: some files intentionally have trailing
+  # whitespace, lack a final line separator, or use CRLF line separators.
   "src/test/resources/end-to-end/**/*",
   "tests/kvasir-tests/povray/**/*",
 ] }

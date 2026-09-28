@@ -1,1 +1,0 @@
-input/macro.bib:1: unterminated entry at EOF: @article{k,

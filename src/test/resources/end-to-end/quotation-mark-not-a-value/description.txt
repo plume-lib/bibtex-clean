@@ -1,0 +1,3 @@
+A quotation mark starts a field value only at the top level of an entry, and only just after "=",
+"#", or the entry's opening delimiter.  Elsewhere it is ordinary text, so it does not hide the
+delimiters that follow it.

@@ -1,0 +1,3 @@
+An entry that fits on one line, such as a @preamble, is recognized as complete, so the text after
+it is removed.  This entry's value is quoted and contains nested braces, none of which ends the
+entry early.
