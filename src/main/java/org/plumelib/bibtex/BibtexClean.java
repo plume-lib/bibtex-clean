@@ -9,6 +9,7 @@ import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.regex.Pattern;
+import org.checkerframework.checker.modifiability.qual.Modifiable;
 import org.plumelib.util.EntryReader;
 import org.plumelib.util.FilesP;
 
@@ -208,7 +209,7 @@ public final class BibtexClean {
     public EntryState() {}
 
     /** The closing delimiters that the entry still awaits, innermost first. */
-    private final Deque<Character> pendingDelimiters = new ArrayDeque<>();
+    private final @Modifiable Deque<Character> pendingDelimiters = new ArrayDeque<>();
 
     /** True if the entry's own opening delimiter has been seen. */
     private boolean started = false;
