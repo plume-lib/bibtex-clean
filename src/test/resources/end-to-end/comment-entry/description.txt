@@ -1,0 +1,3 @@
+A @comment entry is treated like any other entry: one with a braced body is retained up to its
+closing brace, even across lines. A @comment line with no delimiter is an entry by itself, so it is
+retained but the text after it is removed.

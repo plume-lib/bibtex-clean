@@ -1,0 +1,1 @@
+An input that contains no entries, comments, or empty lines produces an empty output file.

@@ -1,0 +1,3 @@
+A line that holds only an entry type, followed by an empty line, is an unterminated entry: the
+program retains both lines and writes a diagnostic. The lines after the empty line, including the
+opening delimiter, are outside any entry and are removed.

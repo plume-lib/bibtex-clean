@@ -1,0 +1,2 @@
+A "}" within a quote-delimited field value is ordinary text rather than the delimiter that closes
+the entry, so the rest of the entry is retained.

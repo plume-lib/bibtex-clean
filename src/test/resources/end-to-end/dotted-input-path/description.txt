@@ -1,0 +1,3 @@
+An argument that contains "." and ".." components is cleaned into a file named for its last
+component. The diagnostic about an unterminated entry gives the file name exactly as it was given
+on the command line.

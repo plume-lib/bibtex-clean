@@ -1,0 +1,1 @@
+Input file --help is also the output file; run in a different directory.

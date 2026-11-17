@@ -26,41 +26,8 @@ entry is done, delete this file and commit the deletion.
       counts once BibtexCleanTest is deleted.
 - [ ] README.txt: spell out the contract for an alternate implementation
       (working directory, arguments, environment, comparisons, normalization).
-- [ ] Fix stale "should be removed, but is not" lines in existing inputs.
-- [ ] Convert BibtexCleanTest cases not yet covered end-to-end, then delete
-      BibtexCleanTest.java:
-  - [ ] smiley-in-braced-value
-  - [ ] frown-in-braced-value
-  - [ ] paren-in-quoted-value
-  - [ ] closing-brace-in-quoted-value
-  - [ ] quotation-mark-in-braced-value
-  - [ ] quoted-value-on-next-line
-- [ ] New cases:
-  - [ ] quote-after-concatenation (`#`)
-  - [ ] quote-after-opening-delimiter (braces and parentheses)
-  - [ ] type-only-line-with-whitespace (tab before `@`, trailing blanks)
-  - [ ] type-only-line-then-blank-line (diagnostic)
-  - [ ] type-only-line-at-eof (diagnostic)
-  - [ ] type-only-line-without-delimiter (text retained until blank line)
-  - [ ] text-after-closing-delimiter
-  - [ ] two-entries-on-one-line (expected BUG)
-  - [ ] text-before-at-on-same-line (expected BUG)
-  - [ ] indented-comment-outside-entry
-  - [ ] comment-entry (`@comment`)
-  - [ ] unmatched-paren-in-paren-entry (diagnostic)
-  - [ ] unbalanced-brace-in-quoted-value (diagnostic)
-  - [ ] unterminated-in-several-files
-  - [ ] dotted-input-path
-  - [ ] input-in-working-directory-after-success
-  - [ ] overwrites-existing-output
-  - [ ] missing-input-keeps-previous-output
-  - [ ] file-name-with-spaces
-  - [ ] malformed-gzip-input
-  - [ ] invalid-utf8-input
-  - [ ] utf8-byte-order-mark (expected BUG)
-  - [ ] cr-line-endings
-  - [ ] output-path-is-directory
-  - [ ] option-like-argument
-  - [ ] only-text-outside-entries
+- [x] Fix stale "should be removed, but is not" lines in existing inputs.
+- [x] Convert BibtexCleanTest cases (6 new cases) and delete BibtexCleanTest.java.
+- [x] Add 27 new cases (goals recorded from current behavior and reviewed).
 - [ ] `./gradlew spotlessApply build` passes; markdownlint passes on this file.
 - [ ] Delete this file and commit.

@@ -1,0 +1,2 @@
+Only a line whose first character is "%" is retained as a comment. Outside an entry, a line with
+whitespace before the "%" is removed, like any other text.

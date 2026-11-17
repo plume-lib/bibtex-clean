@@ -1,0 +1,4 @@
+An unmatched "{" within a quote-delimited value makes the closing quotation mark look like ordinary
+text within braces, so the value, and the entry, are not recognized as ending. BibTeX also rejects
+such a value. The program retains the following text up to an empty line and writes a diagnostic
+about an unterminated entry.

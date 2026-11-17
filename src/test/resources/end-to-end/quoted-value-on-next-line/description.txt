@@ -1,0 +1,2 @@
+A quote-delimited field value whose "=" is at the end of the previous line is still recognized as a
+quoted value, so a "}" within it does not end the entry.

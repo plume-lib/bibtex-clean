@@ -1,0 +1,3 @@
+A quotation mark just after the entry's opening delimiter (possibly after a space) starts a quote-
+delimited value, as in a @preamble. A closing delimiter within that value -- "}" for a brace-
+delimited entry, ")" for a parenthesis-delimited one -- does not end the entry.

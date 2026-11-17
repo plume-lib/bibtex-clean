@@ -1,0 +1,4 @@
+The program cleans its arguments in order and stops at the first one that would overwrite itself.
+An earlier argument's output is retained, a later argument is not cleaned, and the exit status is
+2. The check recognizes the file in the current directory even when its name is given as
+"./refs.bib".

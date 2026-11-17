@@ -1,0 +1,4 @@
+BUG: When an entry ends on a line and another entry starts later on the same line, the program does
+not notice the second entry, because it does not examine the rest of a line once an entry has
+ended. The second entry's remaining lines are silently removed, so the output is not valid BibTeX
+and loses data.

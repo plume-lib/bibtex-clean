@@ -1,0 +1,1 @@
+input/typeeof.bib:2: unterminated entry at EOF: @article
