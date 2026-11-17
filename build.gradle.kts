@@ -163,6 +163,17 @@ tasks.withType<Test>().configureEach {
   finalizedBy(tasks.jacocoTestReport)
 }
 
+// The end-to-end tests run this implementation by default.  To run them against a different
+// implementation of the program, pass the command that runs it, as in
+//   ./gradlew test --tests '*EndToEnd*' -Pe2e.command="python3 /home/me/bibtex_clean.py"
+// See src/test/resources/end-to-end/README.txt.
+val e2eCommand = project.findProperty("e2e.command")
+if (e2eCommand != null) {
+  tasks.withType<Test>().configureEach {
+    systemProperty("e2e.command", e2eCommand.toString())
+  }
+}
+
 jacoco {
   toolVersion = libs.versions.jacoco.get()
 }

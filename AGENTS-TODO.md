@@ -19,9 +19,11 @@ entry is done, delete this file and commit the deletion.
 
 ## Checklist
 
-- [ ] Harness: normalize CRLF in stdout and stderr too (README already promises it).
-- [ ] Harness: `-Pe2e.command=...` Gradle property / `e2e.command` system
-      property to run another implementation; document it in README.txt.
+- [x] Harness: normalize CRLF in stdout and stderr too (README already promises it).
+- [x] Harness: `-Pe2e.command=...` Gradle property / `e2e.command` system
+      property to run another implementation (README.txt still to document it).
+- [x] Harness: pass the JaCoCo agent to the child JVM, so coverage still
+      counts once BibtexCleanTest is deleted.
 - [ ] README.txt: spell out the contract for an alternate implementation
       (working directory, arguments, environment, comparisons, normalization).
 - [ ] Fix stale "should be removed, but is not" lines in existing inputs.
