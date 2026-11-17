@@ -2,3 +2,4 @@ BUG: When an entry ends on a line and another entry starts later on the same lin
 not notice the second entry, because it does not examine the rest of a line once an entry has
 ended. The second entry's remaining lines are silently removed, so the output is not valid BibTeX
 and loses data.
+See https://github.com/plume-lib/bibtex-clean/issues/590.

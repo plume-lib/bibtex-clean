@@ -1,3 +1,4 @@
 BUG: An entry is recognized only when its "@" is the first non-blank character of a line. BibTeX
 ignores text before the "@", so the entry here is a BibTeX entry, but the program silently removes
 all of it.
+See https://github.com/plume-lib/bibtex-clean/issues/591.

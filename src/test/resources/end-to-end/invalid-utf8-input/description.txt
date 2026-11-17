@@ -2,3 +2,4 @@ BUG: The program reads its input as UTF-8. A byte that is not valid UTF-8, such 
 encoding of "E" with an acute accent, which is common in older bibliography files, is silently
 replaced by the Unicode replacement character U+FFFD. The program reports no problem and exits with
 status 0, so the output differs from the input without warning.
+See https://github.com/plume-lib/bibtex-clean/issues/593.

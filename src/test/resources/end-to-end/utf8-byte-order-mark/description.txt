@@ -1,3 +1,4 @@
 BUG: A UTF-8 byte order mark at the start of the file (as some Windows editors write) is treated as
 text before the "@", so the first entry is not recognized and is silently removed in its entirety.
 The second entry is retained.
+See https://github.com/plume-lib/bibtex-clean/issues/592.
