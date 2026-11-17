@@ -51,10 +51,12 @@ goal file's name.
                        goal-err-prefix.txt is present, the program should write nothing to standard
                        error.
 
-  goal-err-prefix.txt  What the program's standard error should start with.  Use this file instead
-                       of goal-err.txt when the rest of the output would make the goal file
-                       brittle, as a stack trace's line numbers or an operating system's wording of
-                       an error would.
+  goal-err-prefix.txt  What the program's standard error should be, except for the end of its last
+                       line.  Use this file instead of goal-err.txt when the end of a diagnostic
+                       would make the goal file brittle, as an operating system's or a library's
+                       description of an error would.  Such a description differs among
+                       implementations and platforms, so it is not part of what the program must
+                       write.
 
   goal-status.txt      The program's exit status, as a decimal integer.  If this file is absent,
                        the exit status should be 0.
@@ -103,8 +105,9 @@ The test harness compares the following.
 
  * Standard output:  equal to goal-out.txt, or empty.
 
- * Standard error:  equal to goal-err.txt, or, if goal-err-prefix.txt exists, starts with its
-   contents with trailing whitespace (including the final line separator) removed; or empty.
+ * Standard error:  equal to goal-err.txt; or, if goal-err-prefix.txt exists, equal to its contents
+   with trailing whitespace (including the final line separator) removed, followed by the rest of
+   that last line:  any characters other than a line separator, then one line separator; or empty.
 
  * Files:  the set of regular files under the working directory, excluding everything under
    "input/", is the same as the set of regular files under goal/ (compared by relative path); and

@@ -366,10 +366,11 @@ public final class BibtexCleanEndToEndTest {
 
   /**
    * Fails if the program's standard error is not what the test case says it should be. The test
-   * case gives either the whole of the standard error (in {@code goal-err.txt}) or a prefix of it
-   * (in {@code goal-err-prefix.txt}, for output such as a stack trace that contains line numbers
-   * that would make a whole-text goal file brittle). If the test case gives neither file, the
-   * program should write nothing to standard error.
+   * case gives either the whole of the standard error (in {@code goal-err.txt}) or all of it except
+   * the end of its last line (in {@code goal-err-prefix.txt}, for a diagnostic whose end, such as
+   * an operating system's or a library's description of an error, would make a whole-text goal file
+   * brittle). If the test case gives neither file, the program should write nothing to standard
+   * error.
    *
    * @param caseDir the test case directory
    * @param stderr what the program wrote to standard error
@@ -381,10 +382,14 @@ public final class BibtexCleanEndToEndTest {
     if (Files.isRegularFile(prefixFile)) {
       // Remove the goal file's final line separator, which is not part of the prefix.
       String prefix = goalText(prefixFile).stripTrailing();
+      // After the prefix comes only the rest of the prefix's last line, so that, for example, a
+      // stack trace after the diagnostic is detected.
       assertTrue(
-          stderr.startsWith(prefix),
+          stderr.startsWith(prefix) && stderr.substring(prefix.length()).matches("[^\n]*\n"),
           context
-              + "  Standard error should start with:%n%s%nbut was:%n%s".formatted(prefix, stderr));
+              + ("  Standard error should be the following, then the rest of its last line:%n%s%n"
+                      + "but was:%n%s")
+                  .formatted(prefix, stderr));
       return;
     }
     assertEquals(
