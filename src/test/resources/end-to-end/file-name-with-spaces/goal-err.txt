@@ -1,0 +1,1 @@
+input/my refs.bib:2: unterminated entry: @article{a,

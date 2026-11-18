@@ -1,0 +1,2 @@
+A line that holds only an entry type, as the last line of the input, is an entry that is
+unterminated at end of file. The diagnostic gives the line number of the "@" line.

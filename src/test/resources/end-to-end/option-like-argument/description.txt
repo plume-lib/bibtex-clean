@@ -1,0 +1,3 @@
+The program has no command-line options: an argument that starts with "-" is a file name. "--help"
+names a file in the current directory, which is also the output file, so the program reports that
+and exits with status 2.

@@ -1,0 +1,2 @@
+input/a.bib:1: unterminated entry at EOF: @article{a,
+input/b.bib:2: unterminated entry: @book{b,

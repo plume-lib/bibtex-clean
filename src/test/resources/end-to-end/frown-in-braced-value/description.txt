@@ -1,0 +1,3 @@
+A "(" within a braced field value, as in a frown, is ordinary text, because BibTeX gives
+parentheses no meaning within an entry. It does not open a delimiter that the entry would then
+await forever.

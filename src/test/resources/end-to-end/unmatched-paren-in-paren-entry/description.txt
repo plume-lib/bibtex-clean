@@ -1,0 +1,4 @@
+An unmatched "(" that is ordinary text, directly within a parenthesis-delimited entry, makes the
+entry's own ")" look like the match of that "(", so the entry is not recognized as ending. That is
+the safe direction of error: the program retains the following text up to an empty line and writes
+a diagnostic about an unterminated entry, rather than silently discarding text.

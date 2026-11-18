@@ -1,0 +1,1 @@
+input/compressed.bib.gz:2: unterminated entry: @article{k,

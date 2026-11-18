@@ -1,0 +1,4 @@
+A line that holds only "@" and a word, such as a social-media handle, looks like an entry type, so
+the program searches the following lines for an opening delimiter. The lines up to the next empty
+line are retained even though they are not BibTeX, and the program writes a diagnostic about an
+unterminated entry; text after the empty line is removed.

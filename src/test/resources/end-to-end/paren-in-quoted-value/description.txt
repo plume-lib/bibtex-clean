@@ -1,0 +1,2 @@
+An unmatched "(" within a quote-delimited field value is ordinary text and does not prevent the
+entry from ending.

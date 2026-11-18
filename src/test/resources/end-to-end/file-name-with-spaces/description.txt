@@ -1,0 +1,2 @@
+A file name that contains a space is handled like any other: the output file has the same name, and
+a diagnostic gives the name unchanged.

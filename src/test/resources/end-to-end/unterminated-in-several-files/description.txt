@@ -1,0 +1,3 @@
+Diagnostics about unterminated entries name the file and line where each entry started, with the
+file name as given on the command line. They do not change the exit status, which is 0, and they do
+not stop the program from cleaning the files named after it.

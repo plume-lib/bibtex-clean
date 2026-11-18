@@ -1,0 +1,2 @@
+A carriage return by itself (as in old Mac OS files) is a line separator. The output is terminated
+with the line separator of the platform on which the program runs.

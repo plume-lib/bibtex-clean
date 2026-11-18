@@ -1,3 +1,4 @@
 A nonexistent input file is reported on standard error, and the exit status is 2.  The program
 opens the input file before it creates the output file, so a run that cannot read its input leaves
 no output file behind; in particular, it does not destroy a file of that name from a previous run.
+The rest of the diagnostic, which describes the problem, is not checked.

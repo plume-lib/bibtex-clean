@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,12 @@ import org.junit.jupiter.params.provider.MethodSource;
  * <p>The test data is in {@code src/test/resources/end-to-end}, one subdirectory per test case; see
  * {@code src/test/resources/end-to-end/README.txt} for the layout of a test case. Every
  * subdirectory is a test case, so a new test case can be added without changing this file.
+ *
+ * <p>By default, the program under test is this implementation, {@link BibtexClean}. To run the
+ * test cases against a different implementation, set the system property {@code e2e.command} (or
+ * pass {@code -Pe2e.command=...} to Gradle) to the command that runs it, such as {@code
+ * /usr/local/bin/bibtex-clean} or {@code python3 /home/me/bibtex_clean.py}. The command is split at
+ * whitespace, and the test case's arguments are appended to it.
  */
 public final class BibtexCleanEndToEndTest {
 
@@ -60,6 +67,12 @@ public final class BibtexCleanEndToEndTest {
           "goal-err.txt",
           "goal-err-prefix.txt",
           "goal-status.txt");
+
+  /**
+   * The system property that holds the command that runs the program under test, if it is not this
+   * implementation.
+   */
+  private static final String commandProperty = "e2e.command";
 
   /** How long to wait for the program to terminate, in seconds. */
   private static final int timeoutSeconds = 120;
@@ -139,9 +152,9 @@ public final class BibtexCleanEndToEndTest {
     assertEquals(goalStatus(caseDir), status, context + "  Wrong exit status.");
     assertEquals(
         goalText(caseDir.resolve("goal-out.txt")),
-        readText(stdoutFile),
+        normalize(readText(stdoutFile)),
         context + "  Wrong standard output.");
-    checkStderr(caseDir, readText(stderrFile), context);
+    checkStderr(caseDir, normalize(readText(stderrFile)), context);
     checkWorkingDir(caseDir, workingDir, context);
   }
 
@@ -217,11 +230,7 @@ public final class BibtexCleanEndToEndTest {
   private static int runProgram(
       Path workingDir, List<String> args, Path stdoutFile, Path stderrFile)
       throws IOException, InterruptedException {
-    List<String> command = new ArrayList<>();
-    command.add(javaExecutable());
-    command.add("-cp");
-    command.add(classpath());
-    command.add(BibtexClean.class.getName());
+    List<String> command = programCommand();
     command.addAll(args);
     Process process =
         new ProcessBuilder(command)
@@ -234,6 +243,75 @@ public final class BibtexCleanEndToEndTest {
       throw new Error("The program did not terminate within " + timeoutSeconds + " seconds.");
     }
     return process.exitValue();
+  }
+
+  /**
+   * Returns the command that runs the program under test, without any arguments. That is the value
+   * of the {@code e2e.command} system property, split at whitespace, if the property is set and is
+   * not blank; otherwise, it is a command that runs {@link BibtexClean} in a new JVM.
+   *
+   * @return the command that runs the program under test
+   */
+  private static @Modifiable List<String> programCommand() {
+    String externalCommand = System.getProperty(commandProperty);
+    if (externalCommand != null && !externalCommand.isBlank()) {
+      return new ArrayList<>(List.of(externalCommand.trim().split("\\s+")));
+    }
+    List<String> result = new ArrayList<>();
+    result.add(javaExecutable());
+    result.addAll(coverageAgentArgs());
+    result.add("-cp");
+    result.add(classpath());
+    result.add(BibtexClean.class.getName());
+    return result;
+  }
+
+  /**
+   * Returns the JVM arguments that attach the JaCoCo code coverage agent to a new JVM, so that the
+   * coverage report includes the code that the end-to-end tests run. That is each JaCoCo {@code
+   * -javaagent} argument of the JVM that is running the tests, with its file names made absolute,
+   * because the new JVM runs in a different working directory. The result is empty if the JVM that
+   * is running the tests has no JaCoCo agent.
+   *
+   * @return the JVM arguments that attach the JaCoCo agent, if any
+   */
+  private static List<String> coverageAgentArgs() {
+    String agentPrefix = "-javaagent:";
+    List<String> result = new ArrayList<>();
+    for (String arg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+      if (!(arg.startsWith(agentPrefix) && arg.contains("jacoco"))) {
+        continue;
+      }
+      // The argument has the form "-javaagent:JARFILE=KEY=VALUE,KEY=VALUE,...".
+      String agent = arg.substring(agentPrefix.length());
+      int equalsIndex = agent.indexOf('=');
+      String jarFile = equalsIndex == -1 ? agent : agent.substring(0, equalsIndex);
+      StringBuilder newArg = new StringBuilder(agentPrefix).append(absolute(jarFile));
+      if (equalsIndex != -1) {
+        List<String> options = new ArrayList<>();
+        for (String option : agent.substring(equalsIndex + 1).split(",", -1)) {
+          String destfilePrefix = "destfile=";
+          options.add(
+              option.startsWith(destfilePrefix)
+                  ? destfilePrefix + absolute(option.substring(destfilePrefix.length()))
+                  : option);
+        }
+        newArg.append('=').append(String.join(",", options));
+      }
+      result.add(newArg.toString());
+    }
+    return result;
+  }
+
+  /**
+   * Returns the given file name, made absolute by resolving it against the working directory of the
+   * JVM that is running the tests.
+   *
+   * @param fileName a file name, which might be relative
+   * @return the absolute form of the given file name
+   */
+  private static String absolute(String fileName) {
+    return Path.of(fileName).toAbsolutePath().toString();
   }
 
   /**
@@ -288,10 +366,11 @@ public final class BibtexCleanEndToEndTest {
 
   /**
    * Fails if the program's standard error is not what the test case says it should be. The test
-   * case gives either the whole of the standard error (in {@code goal-err.txt}) or a prefix of it
-   * (in {@code goal-err-prefix.txt}, for output such as a stack trace that contains line numbers
-   * that would make a whole-text goal file brittle). If the test case gives neither file, the
-   * program should write nothing to standard error.
+   * case gives either the whole of the standard error (in {@code goal-err.txt}) or all of it except
+   * the end of its last line (in {@code goal-err-prefix.txt}, for a diagnostic whose end, such as
+   * an operating system's or a library's description of an error, would make a whole-text goal file
+   * brittle). If the test case gives neither file, the program should write nothing to standard
+   * error.
    *
    * @param caseDir the test case directory
    * @param stderr what the program wrote to standard error
@@ -303,10 +382,14 @@ public final class BibtexCleanEndToEndTest {
     if (Files.isRegularFile(prefixFile)) {
       // Remove the goal file's final line separator, which is not part of the prefix.
       String prefix = goalText(prefixFile).stripTrailing();
+      // After the prefix comes only the rest of the prefix's last line, so that, for example, a
+      // stack trace after the diagnostic is detected.
       assertTrue(
-          stderr.startsWith(prefix),
+          stderr.startsWith(prefix) && stderr.substring(prefix.length()).matches("[^\n]*\n"),
           context
-              + "  Standard error should start with:%n%s%nbut was:%n%s".formatted(prefix, stderr));
+              + ("  Standard error should be the following, then the rest of its last line:%n%s%n"
+                      + "but was:%n%s")
+                  .formatted(prefix, stderr));
       return;
     }
     assertEquals(
@@ -413,8 +496,8 @@ public final class BibtexCleanEndToEndTest {
 
   /**
    * Returns the given text with Windows line separators replaced by Unix ones, so that a goal file
-   * matches program output on any platform. (The program terminates each line it writes with the
-   * platform's line separator.)
+   * matches program output on any platform. (The program terminates each line it writes, including
+   * each line of standard output and standard error, with the platform's line separator.)
    *
    * @param text the text to normalize
    * @return the given text, with Windows line separators replaced by Unix ones

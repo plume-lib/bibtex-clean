@@ -1,0 +1,2 @@
+Text on the same line as an entry's closing delimiter, after it, is retained, because the program
+copies whole lines. The text on the following lines is removed.

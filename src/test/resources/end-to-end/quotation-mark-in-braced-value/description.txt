@@ -1,0 +1,2 @@
+A quotation mark within a braced field value is ordinary text. It does not start a quote-delimited
+value that would hide the delimiters after it.

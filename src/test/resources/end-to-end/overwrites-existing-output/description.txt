@@ -1,0 +1,2 @@
+An output file that already exists, such as one from a previous run, is replaced completely: even
+when the new output is shorter than the old file, none of the old file's contents remain.

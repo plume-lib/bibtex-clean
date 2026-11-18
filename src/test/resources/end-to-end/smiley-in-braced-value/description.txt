@@ -1,0 +1,2 @@
+A ")" within a braced field value, as in a smiley, matches no pending delimiter, so it is ordinary
+text and does not end the entry.

@@ -1,0 +1,3 @@
+input/a.bib
+./refs.bib
+input/b.bib

@@ -1,0 +1,3 @@
+A quotation mark just after "#", the BibTeX string concatenation operator, starts a quote-delimited
+field value, so a "}" within that value does not end the entry. This holds both in a @string
+definition and in an ordinary entry.

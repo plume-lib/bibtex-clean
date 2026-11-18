@@ -1,0 +1,3 @@
+When the output file name is the name of an existing directory, the output cannot be written. The
+program reports the problem and exits with status 2, leaving the directory unchanged. The rest of
+the diagnostic, which describes the problem, is not checked.

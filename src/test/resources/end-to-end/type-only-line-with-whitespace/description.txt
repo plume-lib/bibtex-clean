@@ -1,0 +1,3 @@
+A line that holds only an entry type can have spaces and tabs before the "@" and after the entry
+type; the entry's opening delimiter is then on a later line. Such a line is copied verbatim, with
+its whitespace.

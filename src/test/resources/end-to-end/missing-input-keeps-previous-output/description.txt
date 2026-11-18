@@ -1,0 +1,3 @@
+When an input file does not exist, the program exits with status 2 before it creates the output
+file, so a file of that name from a previous run is left unchanged.
+The rest of the diagnostic, which describes the problem, is not checked.

@@ -1,0 +1,3 @@
+An input file whose name ends with ".gz" but that is not in gzip format cannot be read. The program
+reports the problem and exits with status 2 before creating an output file. The rest of the
+diagnostic, which describes the problem, is not checked.

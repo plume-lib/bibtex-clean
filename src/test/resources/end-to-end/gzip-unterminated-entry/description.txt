@@ -1,0 +1,2 @@
+A diagnostic about an unterminated entry in a compressed input file names the file as given,
+including its ".gz" suffix, and gives the line number within the uncompressed text.
