@@ -117,9 +117,11 @@ The test harness compares the following.
    that last line:  any characters other than a line separator, then one line separator; or empty.
 
  * Files:  the set of regular files under the working directory, excluding everything under
-   "input/", is the same as the set of regular files under goal/ (compared by relative path); and
-   each such file's contents equal the contents of the corresponding goal file.  Directories are not
-   compared, except as they contain files.
+   "input/" and every file that unchecked-files.txt names, is the same as the set of regular files
+   under goal/ (compared by relative path); and each such file's contents equal the contents of the
+   corresponding goal file.  Directories are not compared, except as they contain files.  If a name
+   in unchecked-files.txt is also the relative path of a file under goal/, the test case is
+   erroneous and fails.
 
 All comparisons are of text, decoded as UTF-8, after this normalization:
 
