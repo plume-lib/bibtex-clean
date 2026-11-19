@@ -1,6 +1,7 @@
 package org.plumelib.bibtex;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -66,7 +67,8 @@ public final class BibtexCleanEndToEndTest {
           "goal-out.txt",
           "goal-err.txt",
           "goal-err-prefix.txt",
-          "goal-status.txt");
+          "goal-status.txt",
+          "unchecked-files.txt");
 
   /**
    * The system property that holds the command that runs the program under test, if it is not this
@@ -399,7 +401,7 @@ public final class BibtexCleanEndToEndTest {
   /**
    * Fails if the files in the working directory are not the files in the test case's {@code goal}
    * directory. The {@code input} directory, which the test harness rather than the program created,
-   * is ignored.
+   * is ignored, as are the files that the test case's {@code unchecked-files.txt} names.
    *
    * @param caseDir the test case directory
    * @param workingDir the directory in which the program ran
@@ -410,10 +412,20 @@ public final class BibtexCleanEndToEndTest {
       throws IOException {
     Map<String, Path> actualFiles = relativeFileNames(workingDir);
     actualFiles.keySet().removeIf(name -> name.startsWith("input/"));
-
     Path goalDir = caseDir.resolve("goal");
     Map<String, Path> goalFiles =
         Files.isDirectory(goalDir) ? relativeFileNames(goalDir) : new TreeMap<>();
+
+    Path uncheckedFile = caseDir.resolve("unchecked-files.txt");
+    if (Files.isRegularFile(uncheckedFile)) {
+      List<String> unchecked = goalText(uncheckedFile).lines().filter(l -> !l.isEmpty()).toList();
+      for (String name : unchecked) {
+        assertFalse(
+            goalFiles.containsKey(name),
+            context + "  " + name + " is in both goal/ and unchecked-files.txt.");
+      }
+      actualFiles.keySet().removeAll(unchecked);
+    }
 
     assertEquals(
         String.join(System.lineSeparator(), goalFiles.keySet()),

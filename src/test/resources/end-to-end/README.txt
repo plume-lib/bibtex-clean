@@ -44,6 +44,13 @@ goal file's name.
                        detects a file that the program should not have created.  If this directory
                        is absent, the working directory should contain no files.
 
+  unchecked-files.txt  Names of files in the working directory, one per line, that the comparison
+                       with goal/ ignores:  after the program runs, each such file is permitted to
+                       exist, with any contents, or not to exist.  Use this file when whether the
+                       program leaves a file behind depends on the implementation, as when the
+                       program fails partway through writing an output file.  A file named here
+                       must not also be in goal/.
+
   goal-out.txt         What the program should write to standard output.  If this file is absent,
                        the program should write nothing to standard output.
 
@@ -110,9 +117,11 @@ The test harness compares the following.
    that last line:  any characters other than a line separator, then one line separator; or empty.
 
  * Files:  the set of regular files under the working directory, excluding everything under
-   "input/", is the same as the set of regular files under goal/ (compared by relative path); and
-   each such file's contents equal the contents of the corresponding goal file.  Directories are not
-   compared, except as they contain files.
+   "input/" and every file that unchecked-files.txt names, is the same as the set of regular files
+   under goal/ (compared by relative path); and each such file's contents equal the contents of the
+   corresponding goal file.  Directories are not compared, except as they contain files.  If a name
+   in unchecked-files.txt is also the relative path of a file under goal/, the test case is
+   erroneous and fails.
 
 All comparisons are of text, decoded as UTF-8, after this normalization:
 

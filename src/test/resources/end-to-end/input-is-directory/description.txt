@@ -1,5 +1,6 @@
 When the input file is a directory, reading fails while the program is iterating over lines, and
 the iterator wraps the failure in an UncheckedIOException.  The program catches that as well as
 IOException, so it reports the problem the same way that it reports an unreadable file and exits
-with status 2, rather than printing a stack trace.  The output file has already been created by the
-time the read fails, so an empty one is left behind.
+with status 2, rather than printing a stack trace.  Whether the output file exists afterward depends on
+when an implementation creates it, so it is not checked.  (This implementation has already created
+it when the read fails, and leaves an empty one behind.)

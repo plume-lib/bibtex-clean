@@ -1,3 +1,5 @@
 An input file whose name ends with ".gz" but that is not in gzip format cannot be read. The program
-reports the problem and exits with status 2 before creating an output file. The rest of the
-diagnostic, which describes the problem, is not checked.
+reports the problem and exits with status 2. The rest of the diagnostic, which describes the
+problem, is not checked.  Whether an output file exists afterward depends on when an implementation
+detects that the input is not in gzip format, so it is not checked.  (This implementation detects
+it before creating an output file.)
